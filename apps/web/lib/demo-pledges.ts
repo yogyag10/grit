@@ -31,3 +31,19 @@ export function demoPledges(pact: { id: string; is_demo: boolean; goal_meters?: 
 export function demoCleared(pact: { id: string; is_demo: boolean; goal_meters: number }): number {
   return demoPledges(pact).filter((p) => p.meters >= pact.goal_meters).length;
 }
+
+/** Hard-coded distances (km) for the real members of the demo pact, by order of joining. Fixtures for the demo video, not real runs. */
+const DEMO_MEMBER_KM = [3.0, 2.0, 3.5, 1.5];
+
+/** Demo distance in metres for each member of a demo pact (capped at the goal). Empty for real pacts. */
+export function demoMemberMeters(
+  pact: { is_demo: boolean; goal_meters: number },
+  members: { user_id: string; joined_at: string }[],
+): Map<string, number> {
+  const out = new Map<string, number>();
+  if (!pact.is_demo) return out;
+  [...members]
+    .sort((a, b) => a.joined_at.localeCompare(b.joined_at) || a.user_id.localeCompare(b.user_id))
+    .forEach((m, i) => out.set(m.user_id, Math.min(Math.round(DEMO_MEMBER_KM[i % DEMO_MEMBER_KM.length] * 1000), pact.goal_meters)));
+  return out;
+}

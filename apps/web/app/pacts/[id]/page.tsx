@@ -11,7 +11,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { PactHero } from "@/components/ui/PactHero";
 import { Badge, Card, ExplorerLink, Note, ProgressBar, StatTile } from "@/components/ui/primitives";
 import { cadOf, km, shortDate, solCad, solShort, when } from "@/lib/format";
-import { canView, loadMembership, loadMyProgress, loadPact } from "@/lib/pacts";
+import { canView, loadDemoMemberMeters, loadMembership, loadMyProgress, loadPact } from "@/lib/pacts";
 import { outcomeSentence } from "@/lib/receipt";
 import type { StoredPlan } from "@/lib/settlement";
 import { explorerAddress, explorerTx, treasuryAddress } from "@/lib/solana";
@@ -66,7 +66,14 @@ export default async function PactPage({
   const joinOpen = !pact.cancelled_at && now.getTime() < Date.parse(pact.funding_cutoff);
   const window = membership ? memberWindow(pact, membership.joined_at) : null;
   const phase = window ? syncPhase(pact, window, now) : null;
-  const progress = membership ? await loadMyProgress(admin, pact, user.id) : null;
+  const realProgress = membership ? await loadMyProgress(admin, pact, user.id) : null;
+  const demoMap = await loadDemoMemberMeters(admin, pact);
+  const demoMeters = demoMap.get(user.id);
+  // Demo pact only: a fixed distance for the video, since nobody is actually running.
+  const progress =
+    realProgress && demoMeters !== undefined
+      ? { ...realProgress, acceptedMeters: demoMeters, percent: Math.min(100, Math.floor((demoMeters / pact.goal_meters) * 100)), cleared: demoMeters >= pact.goal_meters }
+      : realProgress;
   const stats = await loadStats(admin, pact);
   const codeQuery = code ? `?code=${encodeURIComponent(code)}` : "";
   const pactPath = `/pacts/${pact.id}${pact.visibility === "invite" && pact.invite_code ? `?code=${encodeURIComponent(pact.invite_code)}` : ""}`;
@@ -149,7 +156,7 @@ export default async function PactPage({
         )}
 
         <div className="grid grid-cols-3 gap-3">
-          <StatTile label="Cleared" value={`${stats.cleared + demoCleared(pact)} of ${stats.funded + demoPledges(pact).length}`} />
+          <StatTile label="Cleared" value={`${(demoMap.size ? [...demoMap.values()].filter((m) => m >= pact.goal_meters).length : stats.cleared) + demoCleared(pact)} of ${Math.max(stats.funded, demoMap.size) + demoPledges(pact).length}`} />
           <StatTile label="Pool" value={<SolValue lamports={stats.poolLamports} />} />
           <StatTile label="Fee" value="0%" accent />
         </div>

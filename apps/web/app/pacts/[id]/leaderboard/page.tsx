@@ -8,7 +8,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { PactHero } from "@/components/ui/PactHero";
 import { Badge, Card, ProgressBar, StatTile } from "@/components/ui/primitives";
 import { km, kmShort, shortDate, solCad } from "@/lib/format";
-import { canView, loadMembership, loadPact } from "@/lib/pacts";
+import { canView, loadDemoMemberMeters, loadMembership, loadPact } from "@/lib/pacts";
 import type { StoredPlan } from "@/lib/settlement";
 import { initials, pactStatus, sceneFor } from "@/lib/spots";
 import { loadStandings, loadStats } from "@/lib/standings";
@@ -42,10 +42,15 @@ export default async function LeaderboardPage({
   const status = pactStatus(pact);
   const ended = status === "ended";
   const codeQuery = code ? `?code=${encodeURIComponent(code)}` : "";
-  const hidden = standings.hiddenCleared + standings.hiddenNotCleared;
+  const memberMeters = await loadDemoMemberMeters(admin, pact);
   const crowd = demoPledges(pact);
   const rows = [
-    ...standings.rows.map((r) => ({ ...r, demo: false })),
+    ...standings.rows.map((r) => {
+      const m = memberMeters.get(r.userId); // demo pact: a fixed distance for the video
+      return m === undefined
+        ? { ...r, demo: false }
+        : { ...r, meters: m, percent: Math.min(100, Math.floor((m / pact.goal_meters) * 100)), cleared: m >= pact.goal_meters, demo: true };
+    }),
     ...crowd.map((p) => ({
       userId: p.id,
       name: p.name,
@@ -55,6 +60,12 @@ export default async function LeaderboardPage({
       demo: true,
     })),
   ].sort((a, b) => b.meters - a.meters);
+  const shownIds = new Set(standings.rows.map((r) => r.userId));
+  const hiddenMeters = [...memberMeters].filter(([id]) => !shownIds.has(id)).map(([, m]) => m);
+  const hiddenCleared = memberMeters.size ? hiddenMeters.filter((m) => m >= pact.goal_meters).length : standings.hiddenCleared;
+  const hiddenNotCleared = memberMeters.size ? hiddenMeters.length - hiddenCleared : standings.hiddenNotCleared;
+  const hidden = hiddenCleared + hiddenNotCleared;
+  const clearedTotal = (memberMeters.size ? [...memberMeters.values()].filter((m) => m >= pact.goal_meters).length : stats.cleared) + demoCleared(pact);
 
   return (
     <AppShell nav={false}>
@@ -70,7 +81,7 @@ export default async function LeaderboardPage({
       <div className="flex flex-col gap-4 px-4 pb-10 pt-3">
         <DemoPledges pact={pact} actualMembers={stats.members} expanded />
         <div className="grid grid-cols-3 gap-3">
-          <StatTile label="Cleared" value={`${stats.cleared + demoCleared(pact)} of ${stats.funded + crowd.length}`} />
+          <StatTile label="Cleared" value={`${clearedTotal} of ${Math.max(stats.funded, memberMeters.size) + crowd.length}`} />
           <StatTile label="Pool" value={<SolValue lamports={stats.poolLamports} />} />
           <StatTile label="Fee" value="0%" accent />
         </div>
@@ -121,7 +132,7 @@ export default async function LeaderboardPage({
         {hidden > 0 && (
           <Card className="flex flex-col gap-1 p-5">
             <p className="text-lg font-semibold">
-              {standings.hiddenCleared} {rows.length > 0 ? "more " : ""}cleared · {standings.hiddenNotCleared}{" "}
+              {hiddenCleared} {rows.length > 0 ? "more " : ""}cleared · {hiddenNotCleared}{" "}
               {ended ? "didn't" : "haven't yet"}
             </p>
             <p className="text-muted">Only people who chose to show their name appear above. No routes or pace are ever shown.</p>

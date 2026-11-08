@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildProgressView, type ProgressView } from "./sync";
 import type { Database } from "./supabase/database.types";
 import { DEMO_PACT_ID, DEMO_PACT_TITLE } from "./demo-pact";
+import { demoMemberMeters } from "./demo-pledges";
 
 type Admin = SupabaseClient<Database>;
 export type Pact = Database["public"]["Tables"]["pacts"]["Row"];
@@ -37,6 +38,19 @@ export async function loadMyProgress(admin: Admin, pact: Pact, userId: string): 
     .eq("user_id", userId);
   if (error) throw new Error(`loading activity checks failed: ${error.message}`);
   return buildProgressView(data ?? [], pact);
+}
+
+/** Demo-only: fixed distances for the real members of a demo pact. Empty map for real pacts. */
+export async function loadDemoMemberMeters(admin: Admin, pact: Pact): Promise<Map<string, number>> {
+  if (!pact.is_demo) return new Map();
+  const { data, error } = await admin
+    .from("memberships")
+    .select("user_id, joined_at")
+    .eq("pact_id", pact.id)
+    .eq("mode", "staked")
+    .is("left_at", null);
+  if (error) throw new Error(`loading members failed: ${error.message}`);
+  return demoMemberMeters(pact, data ?? []);
 }
 
 /** Who may see a pact page: anyone signed in for public pacts; members or code holders for invite pacts. */

@@ -17,3 +17,21 @@ describe("demo crowd", () => {
     expect(demoCleared(demo)).toBeGreaterThan(0);
   });
 });
+
+import { demoMemberMeters } from "../lib/demo-pledges";
+
+describe("demo member distances", () => {
+  const members = [
+    { user_id: "c", joined_at: "2026-11-08T03:00:00Z" },
+    { user_id: "a", joined_at: "2026-11-08T01:00:00Z" },
+    { user_id: "b", joined_at: "2026-11-08T02:00:00Z" },
+    { user_id: "d", joined_at: "2026-11-08T04:00:00Z" },
+  ];
+  it("gives each real member a fixed distance by join order, capped at the goal", () => {
+    const m = demoMemberMeters({ is_demo: true, goal_meters: 3000 }, members);
+    expect([m.get("a"), m.get("b"), m.get("c"), m.get("d")]).toEqual([3000, 2000, 3000, 1500]);
+  });
+  it("does nothing on a real pact", () => {
+    expect(demoMemberMeters({ is_demo: false, goal_meters: 3000 }, members).size).toBe(0);
+  });
+});
