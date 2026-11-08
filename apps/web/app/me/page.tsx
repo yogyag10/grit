@@ -65,6 +65,7 @@ export default async function MePage() {
           <h2 className="text-lg font-bold text-ink">Good to know</h2>
           <p>Your demo wallet lives in this browser. Don&apos;t clear site data before a pact settles, or you can&apos;t reach your payout.</p>
           <p>Devnet only, no real money. Your runs stay private to you.</p>
+          <p className="text-sm">Spot photos are from Wikimedia Commons (CC BY and CC BY-SA). Credits are in the project repo.</p>
         </Card>
 
         <form action="/api/auth/signout" method="post">

@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it, vi } from "vitest";
 import { adminResetResponse, resetAppDatabase } from "../lib/admin-reset";
-import { DEMO_PACT_ID, demoPactSeed, isRetiredSeedPact } from "../lib/demo-pact";
+import { DEMO_PACT_ID, DEMO_PACT_TITLE, demoPactSeed, isRetiredSeedPact } from "../lib/demo-pact";
 import type { Database } from "../lib/supabase/database.types";
 
 const secret = "test-only-reset-secret";
@@ -55,7 +55,7 @@ describe("database and account reset", () => {
     const result = await resetAppDatabase(db.admin, true);
     expect(result.scope).toBe("pact-data");
     expect(db.rpc).toHaveBeenCalledWith("reset_app_data", {
-      p_demo: expect.objectContaining({ id: DEMO_PACT_ID, title: "Demo", is_demo: true }), p_keep_accounts: true,
+      p_demo: expect.objectContaining({ id: DEMO_PACT_ID, title: DEMO_PACT_TITLE, is_demo: true }), p_keep_accounts: true,
     });
     expect(db.listUsers).not.toHaveBeenCalled();
     expect(db.deleteUser).not.toHaveBeenCalled();
@@ -89,7 +89,7 @@ describe("single Demo seed", () => {
   it("opens a fresh 3 km Demo with a stable ID and 48-hour window", () => {
     const now = Date.parse("2026-11-08T06:00:00Z");
     const seed = demoPactSeed(now);
-    expect(seed.title).toBe("Demo");
+    expect(seed.title).toBe(DEMO_PACT_TITLE);
     expect(seed.id).toBe(DEMO_PACT_ID);
     expect(seed.goal_meters).toBe(3000);
     expect(Date.parse(seed.ends_at) - now).toBe(48 * 3600_000);

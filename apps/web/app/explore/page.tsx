@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { AppShell, PageHeader } from "@/components/ui/AppShell";
 import { km, solShort, when } from "@/lib/format";
 import { demoPledges } from "@/lib/demo-pledges";
-import { DEMO_PACT_ID, isRetiredSeedPact } from "@/lib/demo-pact";
+import { DEMO_PACT_ID, DEMO_PACT_TITLE, isRetiredSeedPact } from "@/lib/demo-pact";
 import { pactLengthDays, pactStatus, sceneFor } from "@/lib/spots";
 import type { StoredPlan } from "@/lib/settlement";
 import { createSupabaseAdmin, createSupabaseServer, getUser } from "@/lib/supabase/server";
@@ -20,7 +20,7 @@ export default async function ExplorePage() {
     .from("pacts")
     .select("id, title, goal_meters, stake_lamports, starts_at, ends_at, funding_cutoff, is_demo, cancelled_at")
     .is("cancelled_at", null);
-  const list = (pacts ?? []).filter(p => !isRetiredSeedPact(p.id)).map(p => p.id === DEMO_PACT_ID ? { ...p, title: "Demo" } : p);
+  const list = (pacts ?? []).filter(p => !isRetiredSeedPact(p.id)).map(p => p.id === DEMO_PACT_ID ? { ...p, title: DEMO_PACT_TITLE } : p);
   const ids = list.map((p) => p.id);
 
   // Counts only, from the server: members can't read each other's rows directly.
@@ -83,7 +83,7 @@ export default async function ExplorePage() {
     return {
       id: p.id,
       title: p.title,
-      scene: sceneFor(p.id),
+      scene: sceneFor(p.id, p.title),
       status: status === "cancelled" ? "ended" : status,
       pill,
       lines,

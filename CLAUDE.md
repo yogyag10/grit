@@ -309,7 +309,7 @@ Every pact (Explore list, pact page hero, results) shows a big photo of the run 
 - round dark icon buttons top-right (`bg-[#0E0F0E]/80`, 44 px): share, save
 - a status pill top-left ("● Live" in lime, "Starts Mon" in amber)
 - on hero images, a bottom gradient to `canvas` with the title on top
-Photos: our own photos of UBC spots in `apps/web/public/spots/` (wreck-beach.jpg, pacific-spirit.jpg, thunderbird-track.jpg). Never use photos from other apps or the web.
+Photos: openly licensed Wikimedia Commons photos of UBC-area spots in `apps/web/public/spots/` (wreck-beach, pacific-spirit, spanish-banks, rose-garden), credited in `public/spots/CREDITS.md`. Operator decision (Nov 7): web photos are fine, but only openly licensed ones with attribution. Never use photos from other apps.
 
 ### Components (`apps/web/components/ui/`)
 - `Button`: variants `primary` (bg-oath text-oath-ink), `secondary` (bg-card border-line text-ink),

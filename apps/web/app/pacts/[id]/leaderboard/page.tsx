@@ -45,7 +45,7 @@ export default async function LeaderboardPage({
   return (
     <AppShell nav={false}>
       <PactHero
-        scene={sceneFor(pact.id)}
+        scene={sceneFor(pact.id, pact.title)}
         title={pact.title}
         eyebrow={`${ended ? "Ended" : status === "live" ? "Live" : "Upcoming"} · ${shortDate(pact.starts_at)} – ${shortDate(pact.ends_at)}`}
         backHref={`/pacts/${pact.id}${codeQuery}`}

@@ -84,7 +84,7 @@ export default async function PactPage({
   return (
     <AppShell>
       <PactHero
-        scene={sceneFor(pact.id)}
+        scene={sceneFor(pact.id, pact.title)}
         title={pact.title}
         eyebrow={eyebrow}
         eyebrowClass={eyebrowClass}
@@ -249,7 +249,7 @@ export default async function PactPage({
                     const counted = a.verdict === "accepted" && a.counted;
                     return (
                       <li key={a.id} className="flex items-start gap-3.5 rounded-[18px] bg-card p-3.5">
-                        <Scene kind={sceneFor(a.id)} className="size-16 shrink-0 rounded-2xl" />
+                        <Scene kind={sceneFor(a.id, pact.title)} className="size-16 shrink-0 rounded-2xl" />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-start justify-between gap-2">
                             <p className="font-semibold">

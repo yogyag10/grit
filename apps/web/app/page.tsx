@@ -13,7 +13,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
   return (
     <main className="mx-auto w-full max-w-md">
       <div className="relative h-[380px] overflow-hidden">
-        <Scene kind="beach" className="h-full w-full" />
+        <Scene kind="wreck-beach" className="h-full w-full" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-canvas/30 to-canvas" />
         <div className="absolute left-5 top-6">
           <GritLogo size={34} />
