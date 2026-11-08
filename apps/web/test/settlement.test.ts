@@ -1,5 +1,5 @@
 /** Settlement input building and summaries. Tracks are SYNTHETIC fixtures; no network or DB. */
-import { planSettlement } from "@movepact/core";
+import { planSettlement } from "@oathmile/core";
 import { describe, expect, it } from "vitest";
 import { run } from "../../../packages/core/test/fixtures";
 import { outcomeSentence } from "../lib/receipt";

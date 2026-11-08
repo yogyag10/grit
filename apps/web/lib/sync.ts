@@ -6,7 +6,7 @@ import {
   type ChallengeWindow,
   type CheckResult,
   type ReasonCode,
-} from "@movepact/core";
+} from "@oathmile/core";
 import { StravaError, type StravaErrorKind, type StravaSummaryActivity } from "./strava";
 
 /** Pure sync logic. Strava and the database are injected so this is unit-testable. */
@@ -187,9 +187,9 @@ export function buildProgressView(
 
 /** Member-facing text for a failed sync. Never suggests the member did anything wrong. */
 export const SYNC_ERROR_MESSAGES: Record<StravaErrorKind, string> = {
-  auth: "MovePact isn't connected to your Strava account. Connect Strava from Setup, then sync again.",
+  auth: "Oathmile isn't connected to your Strava account. Connect Strava from Setup, then sync again.",
   permission:
-    "MovePact can't read your activities. Reconnect Strava and allow access to all activities, including private ones.",
+    "Oathmile can't read your activities. Reconnect Strava and allow access to all activities, including private ones.",
   rate_limited: "Strava is limiting requests right now. Try again in about 15 minutes.",
   not_found: "Strava couldn't find one of your activities. Try syncing again.",
   server: "Strava had a problem. Try syncing again in a minute.",

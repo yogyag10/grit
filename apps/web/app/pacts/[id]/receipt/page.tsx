@@ -85,7 +85,7 @@ export default async function ReceiptPage({
       <section aria-label="Totals" className="grid grid-cols-2 gap-3">
         {[
           ["Pool", sol(t.poolLamports)],
-          ["MovePact fee", "0 SOL"],
+          ["Oathmile fee", "0 SOL"],
           ["Paid out", sol(t.paidOutLamports)],
           ["Refunded", sol(t.refundedLamports)],
         ].map(([label, value]) => (
@@ -103,7 +103,7 @@ export default async function ReceiptPage({
           ? `Every deposit is accounted for: ${sol(t.depositedLamports)} in, ${sol(t.paidOutLamports + t.refundedLamports)} out, nothing kept.`
           : r.settled
             ? `Payouts in progress: ${sol(t.outstandingLamports)} still to send.`
-            : `${sol(t.depositedLamports)} held in the MovePact devnet wallet until the pact settles.`}
+            : `${sol(t.depositedLamports)} held in the Oathmile devnet wallet until the pact settles.`}
       </p>
 
       <section className="flex flex-col gap-2">

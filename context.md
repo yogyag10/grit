@@ -1,4 +1,4 @@
-# MovePact — project context and AGENTS.md review
+# Oathmile — project context and AGENTS.md review
 
 This is a handoff document summarizing the product, the current instruction draft, the user's decisions, and two independent reviews. It is reference material, not an adopted replacement for `AGENTS.md`.
 
@@ -42,7 +42,7 @@ There is no reason to add another sponsor integration solely to increase the num
 
 ## 3. Product and economics
 
-**MovePact — Put your money where your movement is.**
+**Oathmile — Put your money where your movement is.**
 
 The product is a community fitness commitment app. Participants put equal stakes into a challenge and complete an exercise objective before its deadline.
 
@@ -55,7 +55,7 @@ The intended rules are:
 - If nobody succeeds, refund everyone for the MVP.
 - No platform rake or fee.
 
-The intended first community is verified UBC email holders. Require verified `@student.ubc.ca` email, one linked Strava athlete, and one linked wallet per account. Email verification is a community gate, not proof of enrollment, age, or one-human-one-account identity. MovePact is not affiliated with UBC.
+The intended first community is verified UBC email holders. Require verified `@student.ubc.ca` email, one linked Strava athlete, and one linked wallet per account. Email verification is a community gate, not proof of enrollment, age, or one-human-one-account identity. Oathmile is not affiliated with UBC.
 
 The hackathon uses **valueless Solana devnet funds only**. Real customer funds and mainnet are outside the task. Production legal/provider/security questions are not a hackathon implementation project.
 

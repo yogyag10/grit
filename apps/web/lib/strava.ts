@@ -1,4 +1,4 @@
-import type { ActivityStreams, StravaActivity } from "@movepact/core";
+import type { ActivityStreams, StravaActivity } from "@oathmile/core";
 
 /** Server-only Strava OAuth + REST client. Tokens never leave the server. */
 

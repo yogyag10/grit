@@ -1,6 +1,6 @@
 /**
  * Debug tool: runs the server's deposit check against a real devnet transaction.
- *   pnpm --filter @movepact/web check-deposit <signature> <fromWallet> <toTreasury> <lamports>
+ *   pnpm --filter @oathmile/web check-deposit <signature> <fromWallet> <toTreasury> <lamports>
  */
 import { Connection } from "@solana/web3.js";
 import { DEVNET_RPC, verifyDepositTx } from "../lib/solana";

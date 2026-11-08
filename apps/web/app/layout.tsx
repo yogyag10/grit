@@ -3,7 +3,7 @@ import "./globals.css";
 import { SolanaProviders } from "@/components/SolanaProviders";
 
 export const metadata: Metadata = {
-  title: "MovePact",
+  title: "Oathmile",
   description: "Put your money where your movement is. Commit with your UBC community and get your deposit back.",
 };
 

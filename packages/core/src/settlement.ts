@@ -1,7 +1,7 @@
 /**
  * Pure settlement math. No network, no database.
  *
- * Rules (from the MovePact brief):
+ * Rules (from the Oathmile brief):
  * - Only participants with a verified deposit of exactly the stake, confirmed at or before the
  *   funding cutoff, are "funded". Only funded participants can qualify or share the pool.
  * - Qualifiers = funded participants whose frozen accepted meters reach the goal.

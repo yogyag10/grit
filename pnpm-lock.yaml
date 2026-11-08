@@ -23,7 +23,7 @@ importers:
 
   apps/web:
     dependencies:
-      '@movepact/core':
+      '@oathmile/core':
         specifier: workspace:*
         version: link:../../packages/core
       '@solana/wallet-adapter-base':

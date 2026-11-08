@@ -27,13 +27,13 @@ export default async function ResultsPage() {
     <main className="mx-auto flex max-w-xl flex-col gap-6 px-4 py-10">
       <header className="flex items-center justify-between">
         <Link href="/" className="font-bold">
-          MovePact
+          Oathmile
         </Link>
       </header>
       <div>
         <h1 className="text-2xl font-bold">Results</h1>
         <p className="mt-1 text-slate-600">
-          Every settled public pact, with its pool receipt. MovePact keeps nothing: every deposit goes back out.
+          Every settled public pact, with its pool receipt. Oathmile keeps nothing: every deposit goes back out.
         </p>
       </div>
 

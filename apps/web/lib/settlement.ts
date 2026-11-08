@@ -5,7 +5,7 @@ import {
   type SettlementInput,
   type SettlementOutcome,
   type SettlementPlan,
-} from "@movepact/core";
+} from "@oathmile/core";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { appUrl } from "./env";
 import { processPayouts, type PayoutChain, type PayoutRunResult, type PayoutStore } from "./payouts";
@@ -75,6 +75,8 @@ export interface PactSettlementSummary {
   feeLamports: 0;
   payouts: Omit<PayoutRunResult, "errors">;
   errors: string[];
+  /** Confirmed payout transaction signatures (public on-chain anyway). */
+  signatures: string[];
   receiptUrl: string;
 }
 
@@ -170,7 +172,7 @@ async function summarizeSettlement(
   run: PayoutRunResult,
 ): Promise<PactSettlementSummary> {
   const { data: settlement } = await admin.from("settlements").select("status").eq("pact_id", pactId).single();
-  const { data: payouts } = await admin.from("payouts").select("kind, lamports, status").eq("pact_id", pactId);
+  const { data: payouts } = await admin.from("payouts").select("kind, lamports, status, signature").eq("pact_id", pactId);
   const confirmed = (payouts ?? []).filter((p) => p.status === "confirmed");
   const sum = (kinds: string[]) =>
     confirmed.filter((p) => kinds.includes(p.kind)).reduce((n, p) => n + Number(p.lamports), 0);
@@ -188,6 +190,7 @@ async function summarizeSettlement(
     feeLamports: 0,
     payouts: { confirmed: run.confirmed, inFlight: run.inFlight, pending: run.pending },
     errors: run.errors,
+    signatures: confirmed.map((p) => p.signature).filter((x): x is string => !!x),
     receiptUrl: `${appUrl()}/pacts/${pactId}/receipt`,
   };
 }

@@ -9,7 +9,7 @@ import { useState } from "react";
 const short = (a: string) => `${a.slice(0, 4)}…${a.slice(-4)}`;
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** Sends the exact stake to the MovePact devnet wallet, then asks the server to verify it on-chain. */
+/** Sends the exact stake to the Oathmile devnet wallet, then asks the server to verify it on-chain. */
 export function DepositButton(props: {
   pactId: string;
   lamports: number;

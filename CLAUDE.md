@@ -1,12 +1,12 @@
-# MovePact: instructions for Claude Code (v2)
+# Oathmile: instructions for Claude Code (v2)
 
 v2 replaces v1. What changed: the scope now matches the core feature set of Renno, an existing
-running-stakes app, plus MovePact's own differentiators, in strict priority tiers. Where this file
+running-stakes app, plus Oathmile's own differentiators, in strict priority tiers. Where this file
 conflicts with v1, `AGENTS.proposed.md` or `context.md`, this file wins. The operator (Yogya) approved
 these changes.
 
-You are building **MovePact** for HackCamp 2026 (UBC, 24 hours, Nov 7 to 8, 2026).
-Repo: https://github.com/silverslither/movepact
+You are building **Oathmile** for HackCamp 2026 (UBC, 24 hours, Nov 7 to 8, 2026).
+Repo: https://github.com/yogyag10/oathmile
 
 Devpost shows submission closing **Nov 8, 2026, 12:15 p.m. MST**. Confirm against organizer
 announcements. The **final 4 hours are a feature freeze**: fixes, rehearsal, README, video, Devpost only.
@@ -20,7 +20,7 @@ announcements. The **final 4 hours are a feature freeze**: fixes, rehearsal, REA
 
 ## Renno is a reference for WHAT to build, never for HOW it looks or reads
 
-Mechanics and features aren't ownable, but Renno's expression is. Use MovePact's own name, visual design,
+Mechanics and features aren't ownable, but Renno's expression is. Use Oathmile's own name, visual design,
 layouts and copy. Write our own pact rules in our own words.
 
 **Never copy any of these from Renno:**
@@ -33,14 +33,14 @@ Don't name Renno inside the app. Competitor comparisons belong in the pitch and 
 ## Positioning (for pitch and Devpost; verify facts before quoting)
 
 Renno (iOS, from Renno's own rules, version effective Nov 5, 2026) and RunBet already run this mechanic,
-which proves demand. Where they differ from MovePact:
+which proves demand. Where they differ from Oathmile:
 - **Fee on failures:** Renno takes 15% of forfeited stakes, and keeps everything if nobody finishes.
 - **Fee on everyone:** every entry pays a non-refundable processing fee.
 - **Winnings:** paid as points that expire after 12 months of inactivity, then are forfeited.
 - **Android:** paid races aren't offered there.
 - **Currency:** charges are in USD.
 
-**MovePact has no house:**
+**Oathmile has no house:**
 - 0% fee
 - full refunds if nobody finishes
 - payouts straight to your wallet
@@ -69,7 +69,7 @@ left. Nothing new in the final 4 hours.**
 
 ### P0: the working core (needed for any demo)
 
-| Feature | Renno has it | MovePact twist |
+| Feature | Renno has it | Oathmile twist |
 |---|---|---|
 | Pact with total-distance goal, start/end dates, stake, all shown before joining | Yes | Devnet SOL, plain-language rules |
 | Join with a commitment deposit | Yes | Deposit verified on-chain; Explorer link shown |
@@ -120,7 +120,7 @@ mainnet, extra sponsor integrations.
 |---|---|
 | Official product pact | 20 km in 7 days, 0.1 devnet SOL |
 | Demo pacts | Same rules, 3 km goal, labelled "Demo" |
-| Custody | One central devnet treasury keypair, server-only. UI says deposits are held in a MovePact devnet wallet |
+| Custody | One central devnet treasury keypair, server-only. UI says deposits are held in an Oathmile devnet wallet |
 | Funding cutoff | `funding_cutoff` = `starts_at` for hosted pacts. Late deposits are returned, never pooled |
 | Counting window per member | From `max(starts_at, joined_at)` to `ends_at`. Pass this window to `checkActivity` |
 | Sync cutoff | `ends_at` + 1 hour; progress frozen then |
@@ -144,7 +144,7 @@ scripts/seed-demo.ts      creates official and demo pacts
 scripts/make-treasury.ts  throwaway devnet keypair
 ```
 
-Wire core: `"@movepact/core": "workspace:*"` and `transpilePackages: ["@movepact/core"]`.
+Wire core: `"@oathmile/core": "workspace:*"` and `transpilePackages: ["@oathmile/core"]`.
 
 ## Data model (Supabase)
 

@@ -29,7 +29,7 @@ export default async function MyPactsPage() {
     <main className="mx-auto flex max-w-xl flex-col gap-6 px-4 py-10">
       <header className="flex items-center justify-between">
         <Link href="/" className="font-bold">
-          MovePact
+          Oathmile
         </Link>
         <Link href="/onboarding" className="text-sm text-slate-600 underline">
           Setup

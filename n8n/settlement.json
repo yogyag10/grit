@@ -1,62 +1,127 @@
 {
-  "name": "MovePact settlement",
+  "name": "Oathmile settlement",
   "nodes": [
     {
+      "parameters": {
+        "content": "## Oathmile settlement\n1. Set the URL in **Settle pacts** to `<APP_URL>/api/settlement/run`.\n2. Attach the Header Auth credential (Name `Authorization`, Value `Bearer <SETTLEMENT_API_SECRET>`).\n3. Execute once to test, then publish so the 15 minute schedule runs.\n\nThe endpoint returns totals only. No fitness data reaches n8n.",
+        "height": 200,
+        "width": 420
+      },
+      "id": "5b0b8f0e-0c43-4c5d-9a53-0f6a1a3f0001",
+      "name": "Setup notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-200, -120]
+    },
+    {
       "parameters": {},
-      "id": "6b0b7a1e-2f0e-4a51-9a1e-000000000001",
+      "id": "5b0b8f0e-0c43-4c5d-9a53-0f6a1a3f0002",
       "name": "Run now",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [0, 0]
+      "position": [0, 120]
     },
     {
       "parameters": {
         "rule": {
-          "interval": [{ "field": "minutes", "minutesInterval": 15 }]
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
         }
       },
-      "id": "6b0b7a1e-2f0e-4a51-9a1e-000000000002",
+      "id": "5b0b8f0e-0c43-4c5d-9a53-0f6a1a3f0003",
       "name": "Every 15 minutes",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [0, 200]
+      "position": [0, 320]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "https://YOUR-APP.vercel.app/api/settlement/run",
+        "url": "https://REPLACE-WITH-APP-URL/api/settlement/run",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "options": {
-          "timeout": 90000
+          "timeout": 120000
         }
       },
-      "id": "6b0b7a1e-2f0e-4a51-9a1e-000000000003",
-      "name": "Settle due pacts",
+      "id": "5b0b8f0e-0c43-4c5d-9a53-0f6a1a3f0004",
+      "name": "Settle pacts",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [260, 100],
-      "credentials": {
-        "httpHeaderAuth": { "id": "", "name": "MovePact settlement secret" }
-      }
+      "position": [260, 220]
     },
     {
       "parameters": {
-        "jsCode": "// Aggregates only: the app never sends names, wallets or fitness data here.\nconst r = $input.first().json;\nconst lines = (r.pacts ?? []).map((p) =>\n  `${p.title}: ${p.cleared} of ${p.funded} made it, ${p.paidOutSol} SOL paid out, ${p.refundedSol} SOL refunded, 0 SOL in fees` +\n  (p.status === 'done' ? '' : ' (payouts still sending)') +\n  `. Receipt: ${p.receiptUrl}`\n);\nreturn [{ json: {\n  newlySettled: r.newlySettled ?? 0,\n  summary: lines.length ? lines.join('\\n') : 'Nothing due for settlement.',\n  pacts: r.pacts ?? []\n} }];"
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9c1d7a52-6d0f-4c58-8e5b-0a1b2c3d0005",
+              "leftValue": "={{ $json.settledPacts }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
       },
-      "id": "6b0b7a1e-2f0e-4a51-9a1e-000000000004",
-      "name": "Summary",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [520, 100]
+      "id": "5b0b8f0e-0c43-4c5d-9a53-0f6a1a3f0005",
+      "name": "Anything settled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [520, 220]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7e2f4b61-3a9c-4d10-b6a7-1c2d3e4f0006",
+              "name": "summary",
+              "value": "={{ $json.pacts.map(p => p.title + ': ' + p.qualifiers + ' of ' + p.members + ' cleared. ' + (p.outcome === 'split' ? 'Paid out ' + (p.paidLamports / 1e9).toFixed(2) + ' SOL to the people who cleared.' : (p.outcome === 'no_funded_participants' ? 'No funded members, nothing to pay.' : 'Everyone got their deposit back.')) + ' Fees: $0. Receipt: ' + p.receiptUrl).join('\\n') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "5b0b8f0e-0c43-4c5d-9a53-0f6a1a3f0006",
+      "name": "Build summary",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [780, 120]
     }
   ],
   "connections": {
-    "Run now": { "main": [[{ "node": "Settle due pacts", "type": "main", "index": 0 }]] },
-    "Every 15 minutes": { "main": [[{ "node": "Settle due pacts", "type": "main", "index": 0 }]] },
-    "Settle due pacts": { "main": [[{ "node": "Summary", "type": "main", "index": 0 }]] }
+    "Run now": {
+      "main": [[{ "node": "Settle pacts", "type": "main", "index": 0 }]]
+    },
+    "Every 15 minutes": {
+      "main": [[{ "node": "Settle pacts", "type": "main", "index": 0 }]]
+    },
+    "Settle pacts": {
+      "main": [[{ "node": "Anything settled?", "type": "main", "index": 0 }]]
+    },
+    "Anything settled?": {
+      "main": [[{ "node": "Build summary", "type": "main", "index": 0 }], []]
+    }
   },
-  "settings": { "executionOrder": "v1" },
-  "active": false,
-  "pinData": {}
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
 }

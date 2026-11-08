@@ -2,7 +2,7 @@
  * Unit tests for the sync orchestration. Tracks are SYNTHETIC fixtures from packages/core/test;
  * Strava is a mocked in-memory source. Nothing here touches the network or a database.
  */
-import type { ActivityStreams } from "@movepact/core";
+import type { ActivityStreams } from "@oathmile/core";
 import { describe, expect, it, vi } from "vitest";
 import { makeTrack, run } from "../../../packages/core/test/fixtures";
 import { StravaError, type StravaSummaryActivity } from "../lib/strava";

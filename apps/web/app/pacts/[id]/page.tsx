@@ -110,7 +110,7 @@ export default async function PactPage({
           </li>
           <li>Only GPS-recorded outdoor runs from Strava count, and only runs you start after joining.</li>
           <li>Reach the goal and you get your full deposit back plus an equal share of deposits from members who don't.</li>
-          <li>If nobody reaches the goal, everyone gets their deposit back. MovePact takes no fee.</li>
+          <li>If nobody reaches the goal, everyone gets their deposit back. Oathmile takes no fee.</li>
           <li>Sync your runs by {when(pact.sync_cutoff)}. Progress is final after that.</li>
         </ul>
       </section>
@@ -160,7 +160,7 @@ export default async function PactPage({
                 <p className="text-sm text-slate-600">
                   Deposit {sol(pact.stake_lamports)} before {when(pact.funding_cutoff)}. It&apos;s held in a{" "}
                   <a href={explorerAddress(treasury)} target="_blank" rel="noreferrer" className="underline">
-                    MovePact devnet wallet
+                    Oathmile devnet wallet
                   </a>{" "}
                   until the pact settles.
                 </p>

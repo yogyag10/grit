@@ -105,7 +105,7 @@ async function main() {
   const accuracy = (tp + tn) / rows.length;
 
   const lines: string[] = [];
-  lines.push(`# MovePact GPS check evaluation`);
+  lines.push(`# Oathmile GPS check evaluation`);
   lines.push("");
   lines.push(`Real, human-labelled activities: **${rows.length}** (${runs.length} real runs, ${notRuns.length} not runs).`);
   lines.push(asRecorded ? "Mode: as recorded (all rules)." : "Mode: every activity checked as if submitted as a GPS run (GPS rules only).");

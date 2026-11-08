@@ -32,11 +32,15 @@ export async function POST(request: Request) {
     if (s.errors.length) console.error(`settlement ${s.pactId}:`, s.errors.join("; "));
   }
 
+  // Shape matches n8n/settlement.json (and n8n/README.md). Totals and public tx signatures only.
   return NextResponse.json({
+    settledPacts: summaries.length,
     newlySettled,
-    settledCount: summaries.length,
     pacts: summaries.map((s) => ({
       title: s.title,
+      qualifiers: s.cleared,
+      paidLamports: s.paidOutLamports,
+      signatures: s.signatures,
       outcome: s.outcome,
       status: s.status,
       members: s.members,

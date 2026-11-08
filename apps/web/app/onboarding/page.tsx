@@ -8,9 +8,9 @@ const STRAVA_STATUS: Record<string, { tone: "ok" | "warn"; text: string }> = {
   denied: { tone: "warn", text: "Strava access wasn't granted. Connect again when you're ready." },
   missing_scope: {
     tone: "warn",
-    text: "MovePact needs to read all your activities, including private ones, to count your runs. Connect again and leave that box checked.",
+    text: "Oathmile needs to read all your activities, including private ones, to count your runs. Connect again and leave that box checked.",
   },
-  athlete_taken: { tone: "warn", text: "That Strava account is already linked to another MovePact account." },
+  athlete_taken: { tone: "warn", text: "That Strava account is already linked to another Oathmile account." },
   bad_state: { tone: "warn", text: "That Strava sign-in expired. Try connecting again." },
   error: { tone: "warn", text: "Something went wrong connecting Strava. Try again." },
 };
@@ -33,7 +33,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
     <main className="mx-auto flex max-w-md flex-col gap-6 px-4 py-12">
       <header className="flex items-center justify-between">
         <Link href="/" className="font-bold">
-          MovePact
+          Oathmile
         </Link>
         <form action="/api/auth/signout" method="post">
           <button className="text-sm text-slate-600 underline">Sign out</button>

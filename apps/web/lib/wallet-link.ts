@@ -14,7 +14,7 @@ export interface LinkChallenge {
 
 export function buildLinkMessage(email: string, c: LinkChallenge): string {
   return [
-    "MovePact: link this wallet to my account.",
+    "Oathmile: link this wallet to my account.",
     "",
     `Account: ${email}`,
     `Wallet: ${c.address}`,
