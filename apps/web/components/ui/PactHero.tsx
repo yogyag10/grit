@@ -2,6 +2,7 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import type { SceneKind } from "@/lib/spots";
 import { MapInset, Scene } from "./art";
+import { RouteMapButton } from "./RouteMapButton";
 import { ShareButton } from "./ShareButton";
 import { Badge } from "./primitives";
 
@@ -45,7 +46,9 @@ export function PactHero({
           <p className={`text-sm font-semibold ${eyebrowClass}`}>{eyebrow}</p>
           <h1 className="text-[32px] font-extrabold leading-[1.05] tracking-tight [text-shadow:0_1px_12px_rgba(0,0,0,0.35)]">{title}</h1>
         </div>
-        <MapInset size={96} className="shrink-0" />
+        <RouteMapButton spot={scene} className="shrink-0">
+          <MapInset size={96} />
+        </RouteMapButton>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { PactStatus, SceneKind } from "@/lib/spots";
 import { MapInset, Scene } from "./art";
+import { RouteMapButton } from "./RouteMapButton";
 import { ShareButton } from "./ShareButton";
 
 const PILL: Record<PactStatus, string> = {
@@ -37,7 +38,9 @@ export function PhotoCard({
         <div className="absolute right-3 top-3">
           <ShareButton path={href} title={title} />
         </div>
-        <MapInset className="absolute bottom-3 right-3" />
+        <RouteMapButton spot={scene} className="absolute bottom-3 right-3">
+          <MapInset />
+        </RouteMapButton>
       </div>
       <Link href={href} className="text-xl font-bold tracking-[-0.01em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oath">
         {title}

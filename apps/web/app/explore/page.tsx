@@ -54,7 +54,7 @@ export default async function ExplorePage() {
     ];
     if (p.is_demo) lines.push(`Demo pact · ${sampleCount} sample pledges`);
 
-    let card: Omit<ExploreCard, "id" | "title" | "scene" | "status" | "pill" | "lines" | "searchText">;
+    let card: Omit<ExploreCard, "id" | "title" | "scene" | "status" | "pill" | "lines" | "searchText" | "startsAt" | "feeLamports">;
     let pill: string;
     if (status === "ended") {
       pill = "Ended";
@@ -88,6 +88,8 @@ export default async function ExplorePage() {
       pill,
       lines,
       searchText: `${p.title} ${lines.join(" ")}`.toLowerCase(),
+      startsAt: Date.parse(p.starts_at),
+      feeLamports: Number(p.stake_lamports),
       ...card,
       sort: status === "ended" ? 1e15 - Date.parse(p.ends_at) : Date.parse(p.starts_at),
     };
