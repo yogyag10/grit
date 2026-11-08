@@ -1,16 +1,17 @@
 "use client";
 
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { useConnection } from "@solana/wallet-adapter-react";
+import { PublicKey, SendTransactionError, SystemProgram, Transaction } from "@solana/web3.js";
+import bs58 from "bs58";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { DEVNET_GENESIS, readDemoWallet } from "@/lib/demo-wallet";
 
-const short = (a: string) => `${a.slice(0, 4)}…${a.slice(-4)}`;
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** Sends the exact stake to the Oathmile devnet wallet, then asks the server to verify it on-chain. */
 export function DepositButton(props: {
+  userId: string;
   pactId: string;
   lamports: number;
   treasury: string;
@@ -19,11 +20,23 @@ export function DepositButton(props: {
 }) {
   const router = useRouter();
   const { connection } = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pendingSig, setPendingSig] = useState<string | null>(null);
-  const current = publicKey?.toBase58() ?? null;
+  const pendingKey = `oathmile:demo-deposit:${props.userId}:${props.pactId}`;
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(pendingKey);
+      if (saved) setPendingSig(JSON.parse(saved).signature);
+    } catch {
+      setError("Couldn't load your pending deposit. Keep this browser's saved wallet data.");
+    }
+  }, [pendingKey]);
+
+  function clearPending() {
+    localStorage.removeItem(pendingKey);
+    setPendingSig(null);
+  }
 
   async function verify(signature: string) {
     setBusy("Verifying on devnet...");
@@ -35,62 +48,87 @@ export function DepositButton(props: {
       });
       const json = await res.json().catch(() => ({}));
       if (res.ok) {
-        setPendingSig(null);
+        clearPending();
         router.refresh();
         return;
       }
-      if (!json.retryable) throw new Error(json.error ?? "The deposit couldn't be verified.");
+      if (!json.retryable) {
+        if (json.code === "FAILED") clearPending();
+        throw new Error(json.error ?? "The deposit couldn't be verified.");
+      }
       await wait(2500);
+    }
+    const saved = localStorage.getItem(pendingKey);
+    if (saved) {
+      const pending = JSON.parse(saved);
+      const { value: [status] } = await connection.getSignatureStatuses([signature], { searchTransactionHistory: true });
+      if (status?.err || (!status && await connection.getBlockHeight("finalized") > pending.lastValidBlockHeight)) {
+        clearPending();
+        throw new Error("The transaction failed or expired without a deposit. You can try again.");
+      }
     }
     throw new Error("Devnet is slow right now. Your transaction was sent; tap Verify again in a moment.");
   }
 
   async function deposit() {
-    if (!publicKey) return;
     setError(null);
     try {
-      setBusy("Approve in Phantom...");
-      const tx = new Transaction().add(
-        SystemProgram.transfer({ fromPubkey: publicKey, toPubkey: new PublicKey(props.treasury), lamports: props.lamports }),
-      );
+      const saved = localStorage.getItem(pendingKey);
+      if (saved) {
+        const pending = JSON.parse(saved);
+        if (typeof pending.signature !== "string") throw new Error("Couldn't read your saved deposit. Keep this browser's wallet data.");
+        setPendingSig(pending.signature);
+        await verify(pending.signature);
+        return;
+      }
+      setBusy("Preparing demo wallet...");
+      const wallet = readDemoWallet(props.userId);
+      if (!wallet || wallet.publicKey.toBase58() !== props.linkedWallet) {
+        throw new Error("Open setup in the browser where you created your demo wallet before depositing.");
+      }
+      if (await connection.getGenesisHash() !== DEVNET_GENESIS) throw new Error("Demo wallets only work on Solana Devnet.");
+      const funding = await fetch(`/api/pacts/${props.pactId}/demo-fund`, { method: "POST" });
+      const funded = await funding.json();
+      if (!funding.ok) throw new Error(funded.error ?? "Couldn't fund the demo wallet.");
+      if (funded.alreadyRecorded) {
+        await verify(funded.signature);
+        return;
+      }
       const latest = await connection.getLatestBlockhash("confirmed");
-      const signature = await sendTransaction(tx, connection);
+      const tx = new Transaction({ feePayer: wallet.publicKey, ...latest }).add(
+        SystemProgram.transfer({ fromPubkey: wallet.publicKey, toPubkey: new PublicKey(props.treasury), lamports: props.lamports }),
+      );
+      tx.sign(wallet);
+      const signature = bs58.encode(tx.signature!);
+      // Save before broadcasting: refreshing or an RPC timeout must not send a second deposit.
+      localStorage.setItem(pendingKey, JSON.stringify({ signature, lastValidBlockHeight: latest.lastValidBlockHeight }));
       setPendingSig(signature);
+      await connection.sendRawTransaction(tx.serialize(), { preflightCommitment: "confirmed" });
       setBusy("Waiting for devnet to confirm...");
-      await connection.confirmTransaction({ signature, ...latest }, "confirmed");
+      const result = await connection.confirmTransaction({ signature, ...latest }, "confirmed");
+      if (result.value.err) {
+        clearPending();
+        throw new Error("The deposit failed on Devnet. You can try again.");
+      }
       await verify(signature);
     } catch (err) {
+      if (err instanceof SendTransactionError) clearPending();
       const text = (err as Error).message ?? "";
-      setError(/reject|denied|cancel/i.test(text) ? "The transaction was cancelled." : text || "Something went wrong.");
+      setError(text || "Something went wrong.");
     } finally {
       setBusy(null);
     }
   }
 
-  if (!current) {
-    return (
-      <div className="flex flex-col gap-2">
-        <p className="text-sm text-slate-600">Connect Phantom (set to devnet) to make your deposit.</p>
-        <WalletMultiButton style={{ height: 40, fontSize: 14, borderRadius: 8, backgroundColor: "#4b3fd1" }} />
-      </div>
-    );
-  }
-  if (current !== props.linkedWallet) {
-    return (
-      <p className="text-sm text-amber-800">
-        Phantom is on {short(current)}, but your linked wallet is {short(props.linkedWallet)}. Switch accounts in Phantom.
-      </p>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-2">
+      <p className="text-sm text-slate-600">Demo wallet · free test SOL, with real Solana Devnet transactions.</p>
       <button
         onClick={deposit}
-        disabled={!!busy}
+        disabled={!!busy || !!pendingSig}
         className="rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-800 disabled:opacity-60"
       >
-        {busy ?? props.label}
+        {busy ?? `${props.label} with demo wallet`}
       </button>
       {pendingSig && !busy && (
         <button

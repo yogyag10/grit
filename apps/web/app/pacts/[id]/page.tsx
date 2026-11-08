@@ -153,7 +153,7 @@ export default async function PactPage({
               </p>
             ) : !profile?.wallet_address ? (
               <Link href="/onboarding" className="text-sm font-medium text-emerald-800 underline">
-                Link your Phantom wallet to make your deposit
+                Set up your demo wallet to make your deposit
               </Link>
             ) : (
               <>
@@ -165,6 +165,7 @@ export default async function PactPage({
                   until the pact settles.
                 </p>
                 <DepositButton
+                  userId={user.id}
                   pactId={pact.id}
                   lamports={Number(pact.stake_lamports)}
                   treasury={treasury}

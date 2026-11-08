@@ -76,10 +76,10 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
         <li className="rounded-xl border border-slate-200 p-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="font-medium">2. Link a Phantom wallet (devnet)</p>
+              <p className="font-medium">2. Set up your demo wallet</p>
               <p className="mt-1 text-sm text-slate-600">
-                Deposits come from this wallet and payouts go straight back to it. In Phantom, turn on Testnet Mode and
-                pick Solana Devnet. Linking only asks you to sign a message; it never moves funds.
+                Your demo wallet is saved in this browser. It uses free Solana Devnet funds for real test deposits
+                and receives payouts back here. No wallet extension needed.
               </p>
             </div>
             {profile?.wallet_address && <span className="shrink-0 text-sm font-medium text-emerald-700">Linked</span>}
@@ -87,7 +87,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
           {profile?.wallet_address && (
             <p className="mt-2 font-mono text-xs text-slate-600">{profile.wallet_address}</p>
           )}
-          <WalletLinker linked={profile?.wallet_address ?? null} />
+          <WalletLinker linked={profile?.wallet_address ?? null} userId={user.id} />
         </li>
       </ol>
 

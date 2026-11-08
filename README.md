@@ -32,6 +32,13 @@ pnpm --filter @oathmile/web build
 
 ## Treasury keypair (devnet)
 
+The app uses browser demo wallets. On the setup page, choose **Use demo wallet**; the key is
+saved in that browser for the signed-in account. Deposits are funded with free test SOL from
+the treasury, signed in the browser, and verified on-chain by the existing deposit endpoint.
+Payouts go back to the same demo wallet. A browser extension is not required.
+
+Configure the treasury locally and on Vercel before trying deposits:
+
 ```sh
 pnpm make-treasury
 ```
