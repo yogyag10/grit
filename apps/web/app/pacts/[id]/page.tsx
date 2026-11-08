@@ -4,6 +4,8 @@ import { km, sol, when } from "@/lib/format";
 import { canView, loadMembership, loadMyProgress, loadPact } from "@/lib/pacts";
 import { createSupabaseAdmin, getUser } from "@/lib/supabase/server";
 import { memberWindow, syncPhase } from "@/lib/sync";
+import { DepositButton } from "@/components/DepositButton";
+import { explorerAddress, explorerTx, treasuryAddress } from "@/lib/solana";
 import { JoinButton, SyncButton } from "./PactActions";
 
 export default async function PactPage({
@@ -24,7 +26,13 @@ export default async function PactPage({
   const membership = await loadMembership(admin, pact.id, user.id);
   if (!canView(pact, membership, code ?? null)) notFound();
 
-  const { data: profile } = await admin.from("profiles").select("strava_athlete_id").eq("id", user.id).single();
+  const { data: profile } = await admin.from("profiles").select("strava_athlete_id, wallet_address")
+    .eq("id", user.id)
+    .single();
+  const { data: deposit } = membership
+    ? await admin.from("deposits").select("signature, confirmed_at").eq("pact_id", pact.id).eq("user_id", user.id).maybeSingle()
+    : { data: null };
+  const treasury = treasuryAddress();
   const now = new Date();
   const joinOpen = !pact.cancelled_at && now.getTime() < Date.parse(pact.funding_cutoff);
   const window = membership ? memberWindow(pact, membership.joined_at) : null;
@@ -72,6 +80,58 @@ export default async function PactPage({
         )
       ) : (
         <>
+          <section aria-labelledby="deposit" className="flex flex-col gap-3 rounded-xl border border-slate-200 p-4">
+            <h2 id="deposit" className="font-semibold">
+              Your deposit
+            </h2>
+            {deposit ? (
+              <>
+                <p className="text-sm text-slate-700">
+                  {Date.parse(deposit.confirmed_at) > Date.parse(pact.funding_cutoff) ? (
+                    <>
+                      Received after the pact started, so it isn&apos;t in the pool. It goes back to your wallet when the
+                      pact settles.
+                    </>
+                  ) : (
+                    <>
+                      <strong>{sol(pact.stake_lamports)}</strong> confirmed on {when(deposit.confirmed_at)}.
+                    </>
+                  )}
+                </p>
+                <a href={explorerTx(deposit.signature)} target="_blank" rel="noreferrer" className="text-sm text-emerald-800 underline">
+                  View on Solana Explorer
+                </a>
+              </>
+            ) : membership.mode !== "staked" ? (
+              <p className="text-sm text-slate-600">Practice entry: no deposit.</p>
+            ) : !joinOpen ? (
+              <p className="text-sm text-slate-600">
+                No deposit was made before the pact started, so this entry isn&apos;t funded. You can still track your runs.
+              </p>
+            ) : !profile?.wallet_address ? (
+              <Link href="/onboarding" className="text-sm font-medium text-emerald-800 underline">
+                Link your Phantom wallet to make your deposit
+              </Link>
+            ) : (
+              <>
+                <p className="text-sm text-slate-600">
+                  Deposit {sol(pact.stake_lamports)} before {when(pact.funding_cutoff)}. It&apos;s held in a{" "}
+                  <a href={explorerAddress(treasury)} target="_blank" rel="noreferrer" className="underline">
+                    MovePact devnet wallet
+                  </a>{" "}
+                  until the pact settles.
+                </p>
+                <DepositButton
+                  pactId={pact.id}
+                  lamports={Number(pact.stake_lamports)}
+                  treasury={treasury}
+                  linkedWallet={profile.wallet_address}
+                  label={`Deposit ${sol(pact.stake_lamports)}`}
+                />
+              </>
+            )}
+          </section>
+
           <section aria-labelledby="progress" className="flex flex-col gap-3 rounded-xl border border-slate-200 p-4">
             <div className="flex items-baseline justify-between">
               <h2 id="progress" className="font-semibold">

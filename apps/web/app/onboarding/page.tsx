@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { WalletLinker } from "@/components/WalletLinker";
 import { createSupabaseServer, getUser } from "@/lib/supabase/server";
 
 const STRAVA_STATUS: Record<string, { tone: "ok" | "warn"; text: string }> = {
@@ -73,12 +74,20 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
         </li>
 
         <li className="rounded-xl border border-slate-200 p-4">
-          <p className="font-medium">2. Connect a Phantom wallet (devnet)</p>
-          <p className="mt-1 text-sm text-slate-600">
-            {profile?.wallet_address
-              ? `Linked: ${profile.wallet_address.slice(0, 4)}…${profile.wallet_address.slice(-4)}`
-              : "Wallet linking isn't built yet. It comes in the next step."}
-          </p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="font-medium">2. Link a Phantom wallet (devnet)</p>
+              <p className="mt-1 text-sm text-slate-600">
+                Deposits come from this wallet and payouts go straight back to it. In Phantom, turn on Testnet Mode and
+                pick Solana Devnet. Linking only asks you to sign a message; it never moves funds.
+              </p>
+            </div>
+            {profile?.wallet_address && <span className="shrink-0 text-sm font-medium text-emerald-700">Linked</span>}
+          </div>
+          {profile?.wallet_address && (
+            <p className="mt-2 font-mono text-xs text-slate-600">{profile.wallet_address}</p>
+          )}
+          <WalletLinker linked={profile?.wallet_address ?? null} />
         </li>
       </ol>
 
