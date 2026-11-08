@@ -60,10 +60,6 @@ export function ProgressBar({ percent, label, className = "" }: { percent: numbe
   );
 }
 
-export function DevnetBanner() {
-  return <div className="bg-card py-1.5 text-center text-xs text-muted">Devnet only · no real money</div>;
-}
-
 export function ExplorerLink({ href, children }: { href: string; children: ReactNode }) {
   return (
     <a href={href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium text-oath underline underline-offset-2">

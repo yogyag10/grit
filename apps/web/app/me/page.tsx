@@ -57,6 +57,10 @@ export default async function MePage() {
           </ButtonLink>
         </Card>
 
+        <ButtonLink href="/pacts" variant="secondary">
+          My pacts
+        </ButtonLink>
+
         <Card className="flex flex-col gap-2 p-5 text-muted">
           <h2 className="text-lg font-bold text-ink">Good to know</h2>
           <p>Your demo wallet lives in this browser. Don&apos;t clear site data before a pact settles, or you can&apos;t reach your payout.</p>

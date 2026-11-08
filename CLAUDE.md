@@ -350,6 +350,15 @@ Icons: `lucide-react` only.
    missed → calm, kind message, no shaming.
 4. **Pool Receipt**: clean ledger table, totals row, and a ✓ "Payouts equal the pool" check.
 
+## Community (added by the operator, beyond the v2 tiers)
+
+Campus-wide chat, groups with their own chat, and private groups joined by shareable invite code. Routes under `/community`, API under `/api/community`, tables `groups`, `group_members`, `messages` (migration `0003_community.sql`).
+
+- Server-only data: RLS on with no client policies. Every read and write goes through a route that checks the signed-in user and, for groups, membership.
+- Private groups are invisible without the code (404). Codes are 8 characters from an alphabet without look-alike letters.
+- Chat is plain text (500 characters), polled every few seconds, rate limited to 20 messages a minute. Members pick a chat name first; emails are never shown.
+- There is no report or moderation tooling. Don't claim any. The UI says only that everyone is a verified UBC student and can see what is written.
+
 ## n8n workflow (`n8n/settlement.json`)
 
 1. Manual Trigger, plus a Schedule Trigger every 15 min.
