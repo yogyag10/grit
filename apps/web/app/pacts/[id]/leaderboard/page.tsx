@@ -6,7 +6,7 @@ import { DemoPledges } from "@/components/DemoPledges";
 import { ButtonLink } from "@/components/ui/Button";
 import { PactHero } from "@/components/ui/PactHero";
 import { Badge, Card, ProgressBar, StatTile } from "@/components/ui/primitives";
-import { km, shortDate, solCad } from "@/lib/format";
+import { km, kmShort, shortDate, solCad } from "@/lib/format";
 import { canView, loadMembership, loadPact } from "@/lib/pacts";
 import type { StoredPlan } from "@/lib/settlement";
 import { initials, pactStatus, sceneFor } from "@/lib/spots";
@@ -64,7 +64,7 @@ export default async function LeaderboardPage({
 
         <div className="flex items-baseline justify-between gap-2 pt-1">
           <h2 className="text-[28px] font-bold tracking-tight">Leaderboard</h2>
-          <span className="text-sm text-muted">% of the {km(pact.goal_meters, 0)} goal</span>
+          <span className="text-sm text-muted">Goal {km(pact.goal_meters, 0)}</span>
         </div>
 
         {standings.rows.length === 0 ? (
@@ -91,8 +91,10 @@ export default async function LeaderboardPage({
                       {row.cleared ? <Badge tone="counted">Cleared</Badge> : <Badge tone="neutral">{ended ? "Not cleared" : "In progress"}</Badge>}
                     </div>
                     <div className="mt-1.5 flex items-center gap-3">
-                      <ProgressBar percent={row.percent} label={`${row.name}: ${row.percent}% of the goal`} className="flex-1" />
-                      <span className="w-12 text-right text-sm text-muted tabular-nums">{row.percent}%</span>
+                      <ProgressBar percent={row.percent} label={`${row.name}: ${kmShort(row.meters)} of ${kmShort(pact.goal_meters)} km`} className="flex-1" />
+                      <span className="w-20 text-right text-sm text-muted tabular-nums">
+                        {kmShort(row.meters)} / {kmShort(pact.goal_meters)} km
+                      </span>
                     </div>
                   </div>
                 </li>

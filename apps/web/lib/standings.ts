@@ -18,6 +18,8 @@ export interface StandingRow {
   userId: string;
   name: string;
   percent: number;
+  /** Accepted distance, capped at the goal. Opted-in members only. */
+  meters: number;
   cleared: boolean;
 }
 
@@ -111,6 +113,7 @@ export async function loadStandings(admin: Admin, pact: Pact): Promise<Standings
       userId: m.user_id,
       name,
       percent: Math.floor((p.acceptedMeters / pact.goal_meters) * 100),
+      meters: Math.min(p.acceptedMeters, pact.goal_meters),
       cleared: p.cleared,
     });
   }

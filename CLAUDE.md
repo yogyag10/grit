@@ -89,7 +89,7 @@ left. Nothing new in the final 4 hours.**
 | **Explore** page | Lists public pacts in Live / Upcoming / Ended tabs, each with goal, dates, stake, members, pool |
 | **Create a pact** (minimal) | Title, goal from presets (5, 10, 20, 42 km), start/end, stake from presets (0.05, 0.1, 0.25 devnet SOL), visibility public or invite-only (default invite-only). No other options |
 | **Invite link** | `/join/[code]` for invite-only pacts. This is the community angle: pacts for a floor, club or friend group |
-| **Standings, privacy-first** | Always show "X of N have cleared" and the pool. Members can **opt in** to show their display name and % of goal. Never show distances, routes or activities. Non-opted members show nothing individually |
+| **Standings, privacy-first** | Always show "X of N have cleared" and the pool. Members can **opt in** to show their display name and km toward the goal (operator change, Nov 8). Never show routes or individual activities. Non-opted members show nothing individually |
 | **Pool Receipt page** (public, per pact) | Every deposit and payout with truncated wallet, amount, Explorer link; totals for pool, fee ($0), paid out, refunded; a check that payouts equal the pool. No names. This is the Solana story |
 | **"Where the money goes"** panel on each pact | Worked example with this pact's numbers: pool, 0% fee, what each person who clears gets |
 
@@ -398,7 +398,7 @@ n8n never receives fitness data. Give the operator import steps.
 ## Privacy and honesty rules
 
 - Strava data never goes to n8n, AI services, public views or on-chain. Tokens stay server-only.
-- Standings show only "X of N cleared" plus opted-in names and percentages.
+- Standings show only "X of N cleared" plus opted-in names and their km toward the goal.
 - Public transfers can reveal who got paid. Don't promise more privacy than that.
 - GPS checks are eligibility checks, not proof of cheating. Known limits: slow cycling passes, and
   someone else carrying your phone passes.

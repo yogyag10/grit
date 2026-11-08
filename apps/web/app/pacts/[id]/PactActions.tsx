@@ -100,7 +100,7 @@ export function InviteButton({ path, title }: { path: string; title: string }) {
   );
 }
 
-/** Members choose whether to show a name and % of goal on the leaderboard. Never distances or routes. */
+/** Members choose whether to show a name and their km toward the goal on the leaderboard. Never routes or individual runs. */
 export function StandingsOptIn({ pactId, initialShow, initialName }: { pactId: string; initialShow: boolean; initialName: string }) {
   const { busy, message, run } = useAction();
   const [name, setName] = useState(initialName);
@@ -108,8 +108,8 @@ export function StandingsOptIn({ pactId, initialShow, initialName }: { pactId: s
     <div className="flex flex-col gap-3">
       <p className="text-muted">
         {initialShow
-          ? "You're shown on the leaderboard with your name and % of the goal."
-          : "Off by default. If you opt in, others see your name and % of the goal. Never your distances, routes or runs."}
+          ? "You're shown on the leaderboard with your name and your km toward the goal."
+          : "Off by default. If you opt in, others see your name and your km toward the goal. Never your routes or individual runs."}
       </p>
       <label htmlFor="display-name" className="text-sm font-semibold">
         Name to show

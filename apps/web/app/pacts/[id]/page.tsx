@@ -1,5 +1,5 @@
 import { SolValue } from "@/components/ui/Money";
-import { Check, Lock } from "lucide-react";
+import { Check, ChevronDown, Lock } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { DepositButton } from "@/components/DepositButton";
@@ -9,7 +9,7 @@ import { Scene } from "@/components/ui/art";
 import { ButtonLink } from "@/components/ui/Button";
 import { PactHero } from "@/components/ui/PactHero";
 import { Badge, Card, ExplorerLink, Note, ProgressBar, StatTile } from "@/components/ui/primitives";
-import { cadOf, km, shortDate, solCad, when } from "@/lib/format";
+import { cadOf, km, shortDate, solCad, solShort, when } from "@/lib/format";
 import { canView, loadMembership, loadMyProgress, loadPact } from "@/lib/pacts";
 import { outcomeSentence } from "@/lib/receipt";
 import type { StoredPlan } from "@/lib/settlement";
@@ -80,7 +80,6 @@ export default async function PactPage({
           : `Ended · ${shortDate(pact.starts_at)} – ${shortDate(pact.ends_at)}`;
   const eyebrowClass = status === "live" ? "text-oath" : status === "upcoming" ? "text-demo" : "text-ink";
 
-  const shareExample = Math.max(1, Math.ceil(stats.funded / 2));
 
   return (
     <AppShell>
@@ -158,28 +157,8 @@ export default async function PactPage({
           <h2 id="money" className="text-xl font-bold">
             Where the money goes
           </h2>
-          <div className="flex justify-between text-muted">
-            <span>
-              Pool ({stats.funded} × {solCad(stake)})
-            </span>
-            <span className="font-semibold text-ink tabular-nums">{solCad(stats.poolLamports)}</span>
-          </div>
-          <div className="flex justify-between text-muted">
-            <span>Grit fee</span>
-            <span className="font-semibold text-ink tabular-nums">{solCad(0)}</span>
-          </div>
-          <hr className="border-line" />
-          {stats.funded > 0 ? (
-            <div className="flex justify-between gap-3 font-semibold">
-              <span>
-                If {shareExample} {shareExample === 1 ? "person clears" : "people clear"}, each gets
-              </span>
-              <span className="text-oath tabular-nums">{solCad(Math.floor(stats.poolLamports / shareExample))}</span>
-            </div>
-          ) : (
-            <p className="font-semibold">The pool grows as members deposit.</p>
-          )}
-          <p className="text-sm text-muted">Nobody clears? Everyone gets their {solCad(stake)} back.</p>
+          <MoneyRow label="Pool" lamports={stats.poolLamports} />
+          <MoneyRow label="Grit fee" lamports={0} />
         </Card>
 
         {!membership ? (
@@ -307,24 +286,27 @@ export default async function PactPage({
           </>
         )}
 
-        <Card aria-labelledby="rules" className="flex flex-col gap-2 p-5">
-          <h2 id="rules" className="text-xl font-bold">
-            The pact
-          </h2>
-          <ul className="flex list-disc flex-col gap-1.5 pl-5 text-muted">
-            <li>
-              Run <strong className="text-ink">{km(pact.goal_meters, 0)}</strong> in total between{" "}
-              <strong className="text-ink">{when(pact.starts_at)}</strong> and <strong className="text-ink">{when(pact.ends_at)}</strong>{" "}
-              (Vancouver time).
-            </li>
-            <li>
-              Commitment deposit: <strong className="text-ink">{solCad(stake)}</strong> (devnet, no real funds).
-            </li>
-            <li>Only GPS-recorded outdoor runs from Strava count, and only runs you start after joining.</li>
-            <li>Reach the goal and you get your full deposit back plus an equal share of deposits from members who don&apos;t.</li>
-            <li>If nobody reaches the goal, everyone gets their deposit back. Grit takes no fee.</li>
-            <li>Sync your runs by {when(pact.sync_cutoff)}. Progress is final after that.</li>
-          </ul>
+        <Card className="p-0">
+          <details className="group">
+            <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 rounded-[18px] px-5 py-4 text-xl font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oath [&::-webkit-details-marker]:hidden">
+              The pact
+              <ChevronDown className="size-5 text-muted transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
+            </summary>
+            <ul className="flex list-disc flex-col gap-1.5 px-5 pb-5 pl-10 text-muted">
+              <li>
+                Run <strong className="text-ink">{km(pact.goal_meters, 0)}</strong> in total between{" "}
+                <strong className="text-ink">{when(pact.starts_at)}</strong> and <strong className="text-ink">{when(pact.ends_at)}</strong>{" "}
+                (Vancouver time).
+              </li>
+              <li>
+                Commitment deposit: <strong className="text-ink">{solCad(stake)}</strong> (devnet, no real funds).
+              </li>
+              <li>Only GPS-recorded outdoor runs from Strava count, and only runs you start after joining.</li>
+              <li>Reach the goal and you get your full deposit back plus an equal share of deposits from members who don&apos;t.</li>
+              <li>If nobody reaches the goal, everyone gets their deposit back. Grit takes no fee.</li>
+              <li>Sync your runs by {when(pact.sync_cutoff)}. Progress is final after that.</li>
+            </ul>
+          </details>
         </Card>
 
         {status === "ended" && (
@@ -334,6 +316,17 @@ export default async function PactPage({
         )}
       </div>
     </AppShell>
+  );
+}
+
+function MoneyRow({ label, lamports }: { label: string; lamports: number }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <span className="text-muted">{label}</span>
+      <span className="whitespace-nowrap font-semibold tabular-nums">
+        {solShort(lamports)} <span className="font-normal text-muted">· {cadOf(lamports)}</span>
+      </span>
+    </div>
   );
 }
 

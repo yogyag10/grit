@@ -6,6 +6,11 @@ export function km(meters: number, digits = 1): string {
   return `${(meters / 1000).toFixed(digits)} km`;
 }
 
+/** Kilometres without a trailing .0: 3, 1.2, 42. */
+export function kmShort(meters: number): string {
+  return String(Number((meters / 1000).toFixed(1)));
+}
+
 export function sol(lamports: number): string {
   return `${Number((lamports / LAMPORTS_PER_SOL).toFixed(4))} SOL`;
 }
