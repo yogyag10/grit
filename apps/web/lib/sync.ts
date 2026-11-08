@@ -187,9 +187,9 @@ export function buildProgressView(
 
 /** Member-facing text for a failed sync. Never suggests the member did anything wrong. */
 export const SYNC_ERROR_MESSAGES: Record<StravaErrorKind, string> = {
-  auth: "Oathmile isn't connected to your Strava account. Connect Strava from Setup, then sync again.",
+  auth: "Grit isn't connected to your Strava account. Connect Strava from Setup, then sync again.",
   permission:
-    "Oathmile can't read your activities. Reconnect Strava and allow access to all activities, including private ones.",
+    "Grit can't read your activities. Reconnect Strava and allow access to all activities, including private ones.",
   rate_limited: "Strava is limiting requests right now. Try again in about 15 minutes.",
   not_found: "Strava couldn't find one of your activities. Try syncing again.",
   server: "Strava had a problem. Try syncing again in a minute.",

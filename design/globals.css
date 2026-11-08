@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+/* Oathmile dark theme — matches the design canvas */
+@theme {
+  --color-canvas: #0e0f0e;      /* page background */
+  --color-card: #1a1c1a;        /* cards, inputs, chips */
+  --color-line: #2c2f2c;        /* borders, dividers, progress track */
+  --color-ink: #f4f5f2;         /* main text */
+  --color-muted: #a3a8a3;       /* secondary text (7:1 on card) */
+  --color-oath: #b6ea8c;        /* lime accent: primary buttons, progress, links, "Counted" */
+  --color-oath-ink: #0e0f0e;    /* text ON lime */
+  --color-oath-soft: #1f2e17;   /* lime-tinted panels */
+  --color-missed: #fca5a5;      /* "Not counted" text */
+  --color-missed-soft: #3a1a1a; /* "Not counted" badge bg */
+  --color-demo: #fcd34d;        /* "Demo data" badge text */
+  --color-demo-soft: #3a2f10;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}

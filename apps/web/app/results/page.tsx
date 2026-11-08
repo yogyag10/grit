@@ -1,5 +1,9 @@
+import { Trophy } from "lucide-react";
 import Link from "next/link";
-import { km, sol, when } from "@/lib/format";
+import { GritLogo } from "@/components/brand/GritLogo";
+import { AppShell } from "@/components/ui/AppShell";
+import { Badge, Card, EmptyState } from "@/components/ui/primitives";
+import { km, solShort, when } from "@/lib/format";
 import { outcomeSentence } from "@/lib/receipt";
 import type { StoredPlan } from "@/lib/settlement";
 import { createSupabaseAdmin } from "@/lib/supabase/server";
@@ -24,53 +28,55 @@ export default async function ResultsPage() {
     (payouts ?? []).filter((p) => p.pact_id === pactId && kinds.includes(p.kind)).reduce((n, p) => n + Number(p.lamports), 0);
 
   return (
-    <main className="mx-auto flex max-w-xl flex-col gap-6 px-4 py-10">
-      <header className="flex items-center justify-between">
-        <Link href="/" className="font-bold">
-          Oathmile
+    <AppShell nav={false}>
+      <div className="flex flex-col gap-5 px-4 pb-10 pt-6">
+        <Link href="/" aria-label="Grit home" className="self-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oath">
+          <GritLogo size={30} />
         </Link>
-      </header>
-      <div>
-        <h1 className="text-2xl font-bold">Results</h1>
-        <p className="mt-1 text-slate-600">
-          Every settled public pact, with its pool receipt. Oathmile keeps nothing: every deposit goes back out.
-        </p>
-      </div>
+        <div>
+          <h1 className="text-[28px] font-bold tracking-tight">Results</h1>
+          <p className="mt-1 text-muted">
+            Every settled public pact, with its pool receipt. Grit keeps nothing: every deposit goes back out.
+          </p>
+        </div>
 
-      {(data ?? []).length === 0 ? (
-        <p className="text-slate-600">No public pacts have settled yet.</p>
-      ) : (
-        <ul className="flex flex-col gap-3">
-          {(data ?? []).map((s) => {
-            const plan = s.plan as unknown as StoredPlan;
-            const p = s.pacts;
-            return (
-              <li key={s.pact_id}>
-                <Link
-                  href={`/pacts/${s.pact_id}/receipt`}
-                  className="block rounded-xl border border-slate-200 p-4 hover:border-emerald-600"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="font-medium">{p.title}</p>
-                    {p.is_demo && <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs text-sky-900">Demo</span>}
-                  </div>
-                  <p className="mt-1 text-sm text-slate-600">
-                    {km(p.goal_meters, 0)} · {sol(p.stake_lamports)} deposit · ended {when(p.ends_at)}
-                  </p>
-                  <p className="mt-2 text-sm text-slate-800">
-                    {outcomeSentence({ outcome: plan.outcome, funded: plan.fundedIds.length, cleared: plan.qualifierIds.length })}
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    {sol(paid(s.pact_id, ["payout"]))} paid out · {sol(paid(s.pact_id, ["refund", "return_unfunded", "leave_refund"]))}{" "}
-                    refunded · 0 SOL fee
-                    {s.status !== "done" && " · payouts in progress"}
-                  </p>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </main>
+        {(data ?? []).length === 0 ? (
+          <EmptyState icon={<Trophy className="size-8" />} text="No public pacts have settled yet." />
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {(data ?? []).map((s) => {
+              const plan = s.plan as unknown as StoredPlan;
+              const p = s.pacts;
+              return (
+                <li key={s.pact_id}>
+                  <Link
+                    href={`/pacts/${s.pact_id}/receipt`}
+                    className="block rounded-[18px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oath"
+                  >
+                    <Card className="flex flex-col gap-2 p-5 transition hover:bg-line motion-reduce:transition-none">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xl font-bold">{p.title}</p>
+                        {p.is_demo && <Badge tone="demo">Demo pact</Badge>}
+                      </div>
+                      <p className="text-sm text-muted">
+                        {km(p.goal_meters, 0)} · {solShort(Number(p.stake_lamports))} deposit · ended {when(p.ends_at)}
+                      </p>
+                      <p>
+                        {outcomeSentence({ outcome: plan.outcome, funded: plan.fundedIds.length, cleared: plan.qualifierIds.length })}
+                      </p>
+                      <p className="text-sm text-muted">
+                        {solShort(paid(s.pact_id, ["payout"]))} paid out ·{" "}
+                        {solShort(paid(s.pact_id, ["refund", "return_unfunded", "leave_refund"]))} refunded · 0 SOL fee
+                        {s.status !== "done" && " · payouts in progress"}
+                      </p>
+                    </Card>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </AppShell>
   );
 }

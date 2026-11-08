@@ -73,7 +73,7 @@ export function verifyDepositTx(
     return {
       ok: false,
       code: "NO_MATCHING_TRANSFER",
-      message: "This transaction isn't a transfer of the exact deposit from your linked wallet to the Oathmile wallet.",
+      message: "This transaction isn't a transfer of the exact deposit from your linked wallet to the Grit wallet.",
       retryable: false,
     };
   }

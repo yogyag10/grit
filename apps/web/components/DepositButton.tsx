@@ -5,11 +5,13 @@ import { PublicKey, SendTransactionError, SystemProgram, Transaction } from "@so
 import bs58 from "bs58";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Note } from "@/components/ui/primitives";
 import { DEVNET_GENESIS, readDemoWallet } from "@/lib/demo-wallet";
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** Sends the exact stake to the Oathmile devnet wallet, then asks the server to verify it on-chain. */
+/** Sends the exact stake to the Grit devnet wallet, then asks the server to verify it on-chain. */
 export function DepositButton(props: {
   userId: string;
   pactId: string;
@@ -121,24 +123,21 @@ export function DepositButton(props: {
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <p className="text-sm text-slate-600">Demo wallet · free test SOL, with real Solana Devnet transactions.</p>
-      <button
-        onClick={deposit}
-        disabled={!!busy || !!pendingSig}
-        className="rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-800 disabled:opacity-60"
-      >
+    <div className="flex flex-col gap-3">
+      <p className="text-sm text-muted">Demo wallet · free test SOL, with real Solana devnet transactions.</p>
+      <Button onClick={deposit} loading={!!busy} disabled={!!pendingSig && !busy}>
         {busy ?? `${props.label} with demo wallet`}
-      </button>
+      </Button>
       {pendingSig && !busy && (
-        <button
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={() => verify(pendingSig).catch((e) => setError((e as Error).message)).finally(() => setBusy(null))}
-          className="text-sm text-emerald-800 underline"
         >
           Verify my sent transaction
-        </button>
+        </Button>
       )}
-      {error && <p className="text-sm text-amber-800">{error}</p>}
+      {error && <Note tone="warn">{error}</Note>}
     </div>
   );
 }

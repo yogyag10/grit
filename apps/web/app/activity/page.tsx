@@ -1,0 +1,128 @@
+import { TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { AppShell, PageHeader } from "@/components/ui/AppShell";
+import { Scene } from "@/components/ui/art";
+import { ButtonLink } from "@/components/ui/Button";
+import { Badge, Card, EmptyState } from "@/components/ui/primitives";
+import { km, solShort, weekday } from "@/lib/format";
+import { sceneFor } from "@/lib/spots";
+import { createSupabaseServer, getUser } from "@/lib/supabase/server";
+import { buildProgressView, type ActivityView } from "@/lib/sync";
+
+export const dynamic = "force-dynamic";
+
+export default async function ActivityPage() {
+  const user = await getUser();
+  if (!user) redirect("/");
+
+  // RLS: activity checks and payouts are own-only, so everything below is this member's data.
+  const supabase = await createSupabaseServer();
+  const [{ data: checks }, { data: payouts }] = await Promise.all([
+    supabase.from("activity_checks").select("pact_id, result, synced_at"),
+    supabase.from("payouts").select("pact_id, kind, lamports, status"),
+  ]);
+  const ids = [...new Set([...(checks ?? []).map((c) => c.pact_id), ...(payouts ?? []).map((p) => p.pact_id)])];
+  const { data: pacts } = ids.length
+    ? await supabase.from("pacts").select("id, title, goal_meters, stake_lamports, sync_cutoff").in("id", ids)
+    : { data: [] };
+
+  const counted = new Map<string, number>(); // activity id -> counted meters, so one run never counts twice
+  const recent: (ActivityView & { pact: string })[] = [];
+  const cleared = new Set<string>();
+  for (const p of pacts ?? []) {
+    const view = buildProgressView((checks ?? []).filter((c) => c.pact_id === p.id), p);
+    if (view.cleared) cleared.add(p.id);
+    for (const a of view.activities) {
+      recent.push({ ...a, pact: p.title });
+      if (a.counted && a.verdict === "accepted") counted.set(a.id, Math.max(counted.get(a.id) ?? 0, a.acceptedMeters));
+    }
+  }
+  recent.sort((a, b) => b.startDate.localeCompare(a.startDate));
+
+  const settledPacts = [...new Set((payouts ?? []).map((p) => p.pact_id))];
+  const kept = settledPacts.filter((id) => cleared.has(id)).length;
+  const stakeOf = new Map((pacts ?? []).map((p) => [p.id, Number(p.stake_lamports)]));
+  const earned = (payouts ?? [])
+    .filter((p) => p.kind === "payout" && p.status === "confirmed")
+    .reduce((sum, p) => sum + Math.max(0, Number(p.lamports) - (stakeOf.get(p.pact_id) ?? 0)), 0);
+  const totalMeters = [...counted.values()].reduce((a, b) => a + b, 0);
+
+  return (
+    <AppShell>
+      <PageHeader title="Your activity" />
+      <div className="flex flex-col gap-4 px-4 pt-4">
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="flex flex-col gap-2 p-5">
+            <p className="text-lg font-semibold">All pacts</p>
+            <div className="flex gap-4 tabular-nums">
+              <div>
+                <p className="text-3xl font-extrabold leading-none">{counted.size}</p>
+                <p className="text-sm text-muted">Runs</p>
+              </div>
+              <div>
+                <p className="text-3xl font-extrabold leading-none">{Math.round(totalMeters / 1000)} km</p>
+                <p className="text-sm text-muted">Counted</p>
+              </div>
+            </div>
+          </Card>
+          <Card className="flex flex-col gap-2 p-5">
+            <p className="text-lg font-semibold">Pacts kept</p>
+            <p className="text-3xl font-extrabold leading-none tabular-nums">
+              {kept} of {settledPacts.length}
+            </p>
+            <p className="text-sm text-muted">+{solShort(earned)} earned (devnet)</p>
+          </Card>
+        </div>
+
+        <h2 className="pt-2 text-xl font-bold">Recent runs</h2>
+        {recent.length === 0 ? (
+          <EmptyState
+            icon={<TrendingUp className="size-8" />}
+            text="No runs checked yet. Sync from a pact page after your next run."
+            action={
+              <ButtonLink href="/pacts" size="sm" full={false}>
+                Go to my pacts
+              </ButtonLink>
+            }
+          />
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {recent.slice(0, 12).map((a, i) => {
+              const ok = a.counted && a.verdict === "accepted";
+              return (
+                <li key={`${a.id}-${i}`} className="flex items-start gap-3.5 rounded-[18px] bg-card p-3.5">
+                  <Scene kind={sceneFor(a.id)} className="size-16 shrink-0 rounded-2xl" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold">
+                        {a.name ?? "Run"}
+                        {a.startDate ? ` · ${weekday(a.startDate)}` : ""}
+                      </p>
+                      <Badge tone={ok ? "counted" : "missed"}>{ok ? "Counted" : "Not counted"}</Badge>
+                    </div>
+                    <p className="text-muted">
+                      {a.pact}
+                      {ok ? ` · ${km(a.acceptedMeters, 1)}` : ""}
+                    </p>
+                    {a.reasons.map((r) => (
+                      <p key={r.code} className="text-sm text-muted">
+                        {r.message}
+                      </p>
+                    ))}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <p className="text-xs text-muted">
+          These are automatic eligibility checks on GPS data, not a judgement about you. See a pact page for details.{" "}
+          <Link href="/pacts" className="underline underline-offset-2">
+            My pacts
+          </Link>
+        </p>
+      </div>
+    </AppShell>
+  );
+}

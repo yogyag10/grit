@@ -2,6 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/Button";
+
+const input =
+  "h-[52px] w-full rounded-full border border-line bg-card px-5 text-base text-ink placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oath";
 
 export function SignInForm() {
   const router = useRouter();
@@ -44,53 +48,54 @@ export function SignInForm() {
     }
   }
 
-  const input =
-    "w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20";
-  const button =
-    "w-full rounded-lg bg-emerald-700 px-4 py-2.5 font-medium text-white hover:bg-emerald-800 disabled:opacity-60";
-
   return sent ? (
     <form onSubmit={verify} className="flex flex-col gap-3">
-      <p className="text-slate-700">
-        We sent a code to <span className="font-medium">{email}</span>. Enter it below, or tap the link in the email.
+      <p className="text-muted">
+        We sent a code to <span className="font-semibold text-ink">{email}</span>. Enter it below, or tap the link in the email.
       </p>
-      <label className="flex flex-col gap-1 text-sm font-medium">
-        Code
-        <input
-          className={`${input} tracking-widest`}
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          required
-        />
+      <label htmlFor="code" className="font-semibold">
+        Sign-in code
       </label>
-      {error && <p className="text-sm text-red-700">{error}</p>}
-      <button className={button} disabled={busy}>
-        {busy ? "Checking..." : "Sign in"}
-      </button>
-      <button type="button" className="text-sm text-slate-600 underline" onClick={() => setSent(false)}>
+      <input
+        id="code"
+        className={`${input} tracking-[0.3em]`}
+        inputMode="numeric"
+        autoComplete="one-time-code"
+        value={code}
+        onChange={(e) => setCode(e.target.value)}
+        required
+      />
+      {error && (
+        <p role="alert" className="text-sm text-missed">
+          {error}
+        </p>
+      )}
+      <Button loading={busy}>{busy ? "Checking..." : "Sign in"}</Button>
+      <Button type="button" variant="ghost" size="sm" onClick={() => setSent(false)}>
         Use a different email
-      </button>
+      </Button>
     </form>
   ) : (
     <form onSubmit={sendCode} className="flex flex-col gap-3">
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label htmlFor="email" className="font-semibold">
         UBC student email
-        <input
-          className={input}
-          type="email"
-          autoComplete="email"
-          placeholder="you@student.ubc.ca"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
       </label>
-      {error && <p className="text-sm text-red-700">{error}</p>}
-      <button className={button} disabled={busy}>
-        {busy ? "Sending..." : "Email me a code"}
-      </button>
+      <input
+        id="email"
+        className={input}
+        type="email"
+        autoComplete="email"
+        placeholder="you@student.ubc.ca"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      {error && (
+        <p role="alert" className="text-sm text-missed">
+          {error}
+        </p>
+      )}
+      <Button loading={busy}>{busy ? "Sending..." : "Send me a sign-in code"}</Button>
     </form>
   );
 }

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grit · Connect Strava (design reference)</title>
+<style>@font-face{font-family:Inter;font-weight:400;src:url(../fonts/inter-latin-400-normal.woff2) format('woff2')}@font-face{font-family:Inter;font-weight:500;src:url(../fonts/inter-latin-500-normal.woff2) format('woff2')}@font-face{font-family:Inter;font-weight:600;src:url(../fonts/inter-latin-600-normal.woff2) format('woff2')}@font-face{font-family:Inter;font-weight:700;src:url(../fonts/inter-latin-700-normal.woff2) format('woff2')}@font-face{font-family:Inter;font-weight:800;src:url(../fonts/inter-latin-800-normal.woff2) format('woff2')}</style>
+<style>
+body{margin:0;background:#0E0F0E}
+a{color:#B6EA8C}a:hover{color:#D3F5B6}
+</style>
+</head>
+<body>
+<!-- DESIGN REFERENCE ONLY. Rebuild in Next.js + Tailwind with the tokens in DESIGN.md. All numbers and names are demo data. -->
+<div style="position: relative; width: 390px; height: 880px; box-sizing: border-box; overflow: hidden; background: #0E0F0E; color: #F4F5F2; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column">
+
+<div style="position: relative; height: 300px; background: #E6E9E0; overflow: hidden">
+<svg width="390" height="300" viewBox="0 0 390 300" role="img" aria-label="Illustration: a run drawn on a map"><path d="M0 0 H120 Q80 140 0 190Z" fill="#A9CFE0"></path><g stroke="#FFFFFF" stroke-width="10" fill="none"><path d="M0 250 L390 205"></path><path d="M265 0 L290 300"></path><path d="M150 0 Q190 130 390 105"></path></g><g fill="#D7DECF"><rect x="300" y="135" width="70" height="44" rx="6"></rect><rect x="170" y="225" width="60" height="40" rx="6"></rect></g><path d="M120 230 C150 170 190 185 210 140 S265 95 300 120 S330 200 280 225 S170 255 120 230" stroke="#3E8E2A" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="120" cy="230" r="9" fill="#FFFFFF" stroke="#1B1B1B" stroke-width="3.5"></circle></svg>
+<div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,15,14,0) 55%, #0E0F0E 100%)"></div>
+<div style="position: absolute; left: 24px; top: 26px"><span role="img" aria-label="Grit" style="display: inline-flex; align-items: baseline; font-size: 30px; font-weight: 800; letter-spacing: -0.05em; color: #0E0F0E; line-height: 1; font-family: Inter, system-ui, sans-serif">gr<span style="position: relative; display: inline-block">ı<span style="position: absolute; left: 50%; top: -6.0px; margin-left: -5.1px; display: block; line-height: 0"><svg width="10.200000000000001" height="10.200000000000001" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 8 L96 90 L50 62 L4 90 Z" fill="#2F8F2A" stroke="#2F8F2A" stroke-width="6" stroke-linejoin="round"></path></svg></span></span>t</span></div></div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 18px; padding: 4px 24px 28px">
+<div style="display: flex; align-items: center; gap: 8px"><span style="width: 28px; height: 6px; border-radius: 999px; background: #B6EA8C"></span><span style="width: 28px; height: 6px; border-radius: 999px; background: #B6EA8C"></span><span style="font-size: 12px; color: #A3A8A3; margin-left: 4px">Step 2 of 2</span></div>
+<h1 style="margin: 0; font-size: 32px; line-height: 1.1; font-weight: 800; letter-spacing: -0.03em">Connect Strava to log your runs</h1>
+<p style="margin: 0; font-size: 16px; line-height: 1.5; color: #A3A8A3">Record runs the way you already do. We check them automatically and count them toward your pacts.</p>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px">
+<li style="display: flex; gap: 12px; align-items: flex-start"><span style="flex: none; width: 32px; height: 32px; border-radius: 999px; background: #B6EA8C; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E0F0E" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg></span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Only runs inside your pacts</span><span style="font-size: 14px; color: #A3A8A3">We read activities from the days you’re in a pact.</span></div></li>
+<li style="display: flex; gap: 12px; align-items: flex-start"><span style="flex: none; width: 32px; height: 32px; border-radius: 999px; background: #B6EA8C; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E0F0E" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg></span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Your runs stay private</span><span style="font-size: 14px; color: #A3A8A3">Others only see whether you cleared the goal.</span></div></li>
+<li style="display: flex; gap: 12px; align-items: flex-start"><span style="flex: none; width: 32px; height: 32px; border-radius: 999px; background: #B6EA8C; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E0F0E" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg></span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Disconnect any time</span><span style="font-size: 14px; color: #A3A8A3">Remove access from Grit or from Strava settings.</span></div></li>
+</ul>
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px">
+<a href="03-explore.html" style="height: 54px; border-radius: 999px; background: #FC4C02; color: #FFFFFF; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none">Connect Strava</a>
+<a href="03-explore.html" style="height: 44px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: #A3A8A3; text-decoration: none">Skip for now</a></div></div>
+</div>
+</body>
+</html>

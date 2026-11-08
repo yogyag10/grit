@@ -72,7 +72,7 @@ export async function POST(request: Request) {
   const { error } = await admin.from("profiles").update({ wallet_address: challenge.address }).eq("id", user.id);
   if (error) {
     if (error.code === "23505") {
-      return NextResponse.json({ error: "That wallet is already linked to another Oathmile account." }, { status: 409 });
+      return NextResponse.json({ error: "That wallet is already linked to another Grit account." }, { status: 409 });
     }
     console.error("wallet link failed", error.code);
     return NextResponse.json({ error: "Couldn't link the wallet. Try again." }, { status: 500 });

@@ -1,15 +1,17 @@
 "use client";
 
+import { Check, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Note } from "@/components/ui/primitives";
 
-const button =
-  "rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-800 disabled:opacity-60";
+type Message = { tone: "ok" | "warn"; text: string } | null;
 
 function useAction() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<{ tone: "ok" | "warn"; text: string } | null>(null);
+  const [message, setMessage] = useState<Message>(null);
 
   async function run(path: string, body: object, onOk: (json: Record<string, unknown>) => string | null) {
     setBusy(true);
@@ -38,18 +40,12 @@ function useAction() {
   return { busy, message, run };
 }
 
-function Note({ message }: { message: { tone: "ok" | "warn"; text: string } | null }) {
-  if (!message) return null;
-  return <p className={`text-sm ${message.tone === "ok" ? "text-emerald-800" : "text-amber-800"}`}>{message.text}</p>;
-}
-
 export function SyncButton({ pactId }: { pactId: string }) {
   const { busy, message, run } = useAction();
   return (
     <div className="flex flex-col gap-2">
-      <button
-        className={button}
-        disabled={busy}
+      <Button
+        loading={busy}
         onClick={() =>
           run(`/api/pacts/${pactId}/sync`, {}, (json) => {
             if (typeof json.message === "string") return json.message;
@@ -60,9 +56,9 @@ export function SyncButton({ pactId }: { pactId: string }) {
           })
         }
       >
-        {busy ? "Syncing with Strava..." : "Sync my runs"}
-      </button>
-      <Note message={message} />
+        {busy ? "Syncing with Strava..." : "Sync runs"}
+      </Button>
+      {message && <Note tone={message.tone}>{message.text}</Note>}
     </div>
   );
 }
@@ -71,10 +67,70 @@ export function JoinButton({ pactId, inviteCode }: { pactId: string; inviteCode:
   const { busy, message, run } = useAction();
   return (
     <div className="flex flex-col gap-2">
-      <button className={button} disabled={busy} onClick={() => run(`/api/pacts/${pactId}/join`, { inviteCode }, () => null)}>
-        {busy ? "Joining..." : "Join this pact"}
-      </button>
-      <Note message={message} />
+      <Button loading={busy} onClick={() => run(`/api/pacts/${pactId}/join`, { inviteCode }, () => null)}>
+        {busy ? "Joining..." : "Join pact"}
+      </Button>
+      {message && <Note tone={message.tone}>{message.text}</Note>}
+    </div>
+  );
+}
+
+/** Shares or copies the link to this pact. Invite-only pacts include their code. */
+export function InviteButton({ path, title }: { path: string; title: string }) {
+  const [copied, setCopied] = useState(false);
+  async function invite() {
+    const url = `${window.location.origin}${path}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Cancelled or blocked; nothing to recover.
+    }
+  }
+  return (
+    <Button type="button" variant="secondary" onClick={invite}>
+      {copied ? <Check className="size-5" aria-hidden="true" /> : <UserPlus className="size-5" aria-hidden="true" />}
+      {copied ? "Link copied" : "Invite friends"}
+    </Button>
+  );
+}
+
+/** Members choose whether to show a name and % of goal on the leaderboard. Never distances or routes. */
+export function StandingsOptIn({ pactId, initialShow, initialName }: { pactId: string; initialShow: boolean; initialName: string }) {
+  const { busy, message, run } = useAction();
+  const [name, setName] = useState(initialName);
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-muted">
+        {initialShow
+          ? "You're shown on the leaderboard with your name and % of the goal."
+          : "Off by default. If you opt in, others see your name and % of the goal. Never your distances, routes or runs."}
+      </p>
+      <label htmlFor="display-name" className="text-sm font-semibold">
+        Name to show
+      </label>
+      <input
+        id="display-name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        maxLength={24}
+        placeholder="e.g. Priya S."
+        className="h-12 rounded-full border border-line bg-canvas px-5 text-base text-ink placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oath"
+      />
+      <Button
+        variant={initialShow ? "secondary" : "primary"}
+        size="sm"
+        loading={busy}
+        onClick={() => run(`/api/pacts/${pactId}/standings`, { show: !initialShow, displayName: name }, () => null)}
+      >
+        {initialShow ? "Hide me from the leaderboard" : "Show me on the leaderboard"}
+      </Button>
+      {message && <Note tone={message.tone}>{message.text}</Note>}
     </div>
   );
 }
