@@ -13,7 +13,7 @@ const STRAVA_STATUS: Record<string, { tone: "ok" | "warn"; text: string }> = {
   denied: { tone: "warn", text: "Strava access wasn't granted. Connect again when you're ready." },
   missing_scope: {
     tone: "warn",
-    text: "Grit needs to read all your activities, including private ones, to count your runs. Connect again and leave that box checked.",
+    text: "Grit needs to read all your activities, including private ones, to count your activities. Connect again and leave that box checked.",
   },
   athlete_taken: { tone: "warn", text: "That Strava account is already linked to another Grit account." },
   bad_state: { tone: "warn", text: "That Strava sign-in expired. Try connecting again." },
@@ -23,7 +23,7 @@ const STRAVA_STATUS: Record<string, { tone: "ok" | "warn"; text: string }> = {
 const REASONS = [
   { title: "Only runs inside your pacts", body: "We read activities from the days you're in a pact." },
   {
-    title: "Your runs stay private",
+    title: "Your activities stay private",
     body: "Others only see whether you cleared the goal, unless you choose to show your progress.",
   },
   { title: "You stay in control", body: "You can remove Grit's access any time in your Strava settings." },
@@ -62,7 +62,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
 
       <div className="relative -mt-6 flex flex-col gap-5 px-5 pb-10">
         <StepDots step={2} of={2} />
-        <h1 className="text-[34px] font-extrabold leading-[1.1] tracking-tight">Connect Strava to log your runs</h1>
+        <h1 className="text-[34px] font-extrabold leading-[1.1] tracking-tight">Connect Strava to log your activities</h1>
         <p className="text-lg text-muted">
           Record runs the way you already do. We check them automatically and count them toward your pacts.
         </p>

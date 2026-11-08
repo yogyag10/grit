@@ -56,7 +56,7 @@ export function SyncButton({ pactId }: { pactId: string }) {
           })
         }
       >
-        {busy ? "Syncing with Strava..." : "Sync runs"}
+        {busy ? "Syncing with Strava..." : "Sync activities"}
       </Button>
       {message && <Note tone={message.tone}>{message.text}</Note>}
     </div>

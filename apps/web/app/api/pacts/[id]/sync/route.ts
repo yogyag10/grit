@@ -1,3 +1,4 @@
+import { rulesFor } from "@oathmile/core";
 import { NextResponse } from "next/server";
 import { loadMembership, loadMyProgress, loadPact } from "@/lib/pacts";
 import { getStreams, listActivities, StravaError } from "@/lib/strava";
@@ -6,7 +7,7 @@ import type { Json } from "@/lib/supabase/database.types";
 import { createSupabaseAdmin, getUser } from "@/lib/supabase/server";
 import { memberWindow, runSync, SYNC_ERROR_MESSAGES, syncPhase } from "@/lib/sync";
 
-/** Pulls the member's Strava runs for this pact, checks them, and returns private progress. */
+/** Pulls the member's Strava activities for this pact, checks them, and returns private progress. */
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: "Sign in first." }, { status: 401 });
@@ -25,7 +26,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   if (phase !== "open") {
     const progress = await loadMyProgress(admin, pact, user.id);
     const message =
-      phase === "frozen" ? "Progress is final. Syncing closed after the pact ended." : "Your runs start counting when the pact starts.";
+      phase === "frozen" ? "Progress is final. Syncing closed after the pact ended." : "Your activities start counting when the pact starts.";
     return NextResponse.json({ phase, message, progress });
   }
 
@@ -49,6 +50,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       window,
       now,
       alreadyChecked: new Set((existing ?? []).map((r) => String(r.strava_activity_id))),
+      rules: rulesFor(pact.activity),
     });
 
     if (outcome.checked.length > 0) {

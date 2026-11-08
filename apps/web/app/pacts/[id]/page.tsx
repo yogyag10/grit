@@ -1,4 +1,5 @@
 import { SolValue } from "@/components/ui/Money";
+import { ACTIVITY_PROFILES, isActivityKind } from "@oathmile/core";
 import { Check, ChevronDown, Lock } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -63,6 +64,8 @@ export default async function PactPage({
   const now = new Date();
   const status = pactStatus(pact, now);
   const stake = Number(pact.stake_lamports);
+  const profile_ = ACTIVITY_PROFILES[isActivityKind(pact.activity) ? pact.activity : "run"];
+  const rules_ = profile_.rules;
   const joinOpen = !pact.cancelled_at && now.getTime() < Date.parse(pact.funding_cutoff);
   const window = membership ? memberWindow(pact, membership.joined_at) : null;
   const phase = window ? syncPhase(pact, window, now) : null;
@@ -199,7 +202,7 @@ export default async function PactPage({
               ) : membership.mode !== "staked" ? (
                 <p className="text-muted">Practice entry: no deposit.</p>
               ) : !joinOpen ? (
-                <p className="text-muted">No deposit was made before the pact started, so this entry isn&apos;t funded. You can still track your runs.</p>
+                <p className="text-muted">No deposit was made before the pact started, so this entry isn&apos;t funded. You can still track your activities.</p>
               ) : !profile?.wallet_address ? (
                 <Link href="/onboarding" className="font-semibold text-oath underline underline-offset-2">
                   Set up your demo wallet to make your deposit
@@ -227,10 +230,10 @@ export default async function PactPage({
 
             <section aria-labelledby="runs" className="flex flex-col gap-3">
               <h2 id="runs" className="pt-2 text-xl font-bold">
-                Your runs
+                Your activities
               </h2>
               {progress && progress.activities.length === 0 ? (
-                <p className="rounded-[18px] bg-card p-4 text-muted">No runs checked yet. Sync after your next run.</p>
+                <p className="rounded-[18px] bg-card p-4 text-muted">Nothing checked yet. Sync after your next activity.</p>
               ) : (
                 <ul className="flex flex-col gap-3">
                   {progress?.activities.map((a) => {
@@ -302,17 +305,21 @@ export default async function PactPage({
             </summary>
             <ul className="flex list-disc flex-col gap-1.5 px-5 pb-5 pl-10 text-muted">
               <li>
-                Run <strong className="text-ink">{km(pact.goal_meters, 0)}</strong> in total between{" "}
+                Log <strong className="text-ink">{km(pact.goal_meters, 0)}</strong> of {profile_.plural} in total between{" "}
                 <strong className="text-ink">{when(pact.starts_at)}</strong> and <strong className="text-ink">{when(pact.ends_at)}</strong>{" "}
                 (Vancouver time).
               </li>
               <li>
                 Commitment deposit: <strong className="text-ink">{solCad(stake)}</strong> (devnet, no real funds).
               </li>
-              <li>Only GPS-recorded outdoor runs from Strava count, and only runs you start after joining.</li>
+              <li>
+                Only GPS-recorded {profile_.plural} from Strava count, and only ones you start after joining. Each needs to be at least{" "}
+                {km(rules_.minDistanceM, rules_.minDistanceM < 1000 ? 2 : 0)} and {Math.round(rules_.minDurationS / 60)} minutes.
+              </li>
+              {profile_.note && <li>{profile_.note}</li>}
               <li>Reach the goal and you get your full deposit back plus an equal share of deposits from members who don&apos;t.</li>
               <li>If nobody reaches the goal, everyone gets their deposit back. Grit takes no fee.</li>
-              <li>Sync your runs by {when(pact.sync_cutoff)}. Progress is final after that.</li>
+              <li>Sync your activities by {when(pact.sync_cutoff)}. Progress is final after that.</li>
             </ul>
           </details>
         </Card>

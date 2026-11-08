@@ -163,14 +163,14 @@ isOneToOne: false
                   ]
                 },"pacts": {
                   Row: {
-                    "cancelled_at": string | null,"created_at": string,"ends_at": string,"funding_cutoff": string,"goal_meters": number,"host_id": string | null,"id": string,"invite_code": string | null,"is_demo": boolean,"stake_lamports": number,"starts_at": string,"sync_cutoff": string,"title": string,"visibility": string
+                    "activity": string,"cancelled_at": string | null,"created_at": string,"ends_at": string,"funding_cutoff": string,"goal_meters": number,"host_id": string | null,"id": string,"invite_code": string | null,"is_demo": boolean,"stake_lamports": number,"starts_at": string,"sync_cutoff": string,"title": string,"visibility": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "cancelled_at"?: string | null,"created_at"?: string,"ends_at": string,"funding_cutoff": string,"goal_meters": number,"host_id"?: string | null,"id"?: string,"invite_code"?: string | null,"is_demo"?: boolean,"stake_lamports": number,"starts_at": string,"sync_cutoff": string,"title": string,"visibility"?: string
+                    "activity"?: string,"cancelled_at"?: string | null,"created_at"?: string,"ends_at": string,"funding_cutoff": string,"goal_meters": number,"host_id"?: string | null,"id"?: string,"invite_code"?: string | null,"is_demo"?: boolean,"stake_lamports": number,"starts_at": string,"sync_cutoff": string,"title": string,"visibility"?: string
                   }
                   Update: {
-                    "cancelled_at"?: string | null,"created_at"?: string,"ends_at"?: string,"funding_cutoff"?: string,"goal_meters"?: number,"host_id"?: string | null,"id"?: string,"invite_code"?: string | null,"is_demo"?: boolean,"stake_lamports"?: number,"starts_at"?: string,"sync_cutoff"?: string,"title"?: string,"visibility"?: string
+                    "activity"?: string,"cancelled_at"?: string | null,"created_at"?: string,"ends_at"?: string,"funding_cutoff"?: string,"goal_meters"?: number,"host_id"?: string | null,"id"?: string,"invite_code"?: string | null,"is_demo"?: boolean,"stake_lamports"?: number,"starts_at"?: string,"sync_cutoff"?: string,"title"?: string,"visibility"?: string
                   }
                   Relationships: [
                     {

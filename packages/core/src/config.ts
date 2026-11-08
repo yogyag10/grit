@@ -44,3 +44,91 @@ export const GPS_RULES: GpsRules = {
   minAvgSpeedMps: 0,
   maxDistanceMismatch: 0.3,
 };
+
+export const ACTIVITY_KINDS = ["run", "trail_run", "walk", "hike", "ride", "mountain_bike", "swim", "row", "sail"] as const;
+export type ActivityKind = (typeof ACTIVITY_KINDS)[number];
+
+export interface ActivityProfile {
+  /** Shown on pact cards and chips. */
+  label: string;
+  /** Plain-language name for the rules list: "outdoor runs". */
+  plural: string;
+  /** Extra caution shown when creating or reading a pact. */
+  note?: string;
+  rules: GpsRules;
+}
+
+/**
+ * Per-activity thresholds. Speeds are in m/s (7 m/s is about 25 km/h). The vehicle checks are only
+ * as good as the speed gap between the activity and a car or motorboat, so they are loosest for
+ * rides and sailing. Not tuned on real data yet: run `pnpm eval` before trusting a new activity.
+ */
+export const ACTIVITY_PROFILES: Record<ActivityKind, ActivityProfile> = {
+  run: { label: "Run", plural: "outdoor runs", rules: GPS_RULES },
+  trail_run: { label: "Trail run", plural: "outdoor trail runs", rules: { ...GPS_RULES, allowedSportTypes: ["TrailRun"] } },
+  walk: {
+    label: "Walk",
+    plural: "outdoor walks",
+    rules: { ...GPS_RULES, allowedSportTypes: ["Walk"], vehicleSpeedMps: 4.5, maxAvgSpeedMps: 2.8 },
+  },
+  hike: {
+    label: "Hike",
+    plural: "hikes",
+    rules: { ...GPS_RULES, allowedSportTypes: ["Hike"], vehicleSpeedMps: 4.5, maxAvgSpeedMps: 2.8 },
+  },
+  ride: {
+    label: "Ride",
+    plural: "outdoor rides",
+    note: "A fast ride and a car in town can look alike to a speed check.",
+    rules: { ...GPS_RULES, allowedSportTypes: ["Ride", "GravelRide"], spikeSpeedMps: 30, vehicleSpeedMps: 15, maxAvgSpeedMps: 11 },
+  },
+  mountain_bike: {
+    label: "Mountain bike",
+    plural: "mountain bike rides",
+    rules: { ...GPS_RULES, allowedSportTypes: ["MountainBikeRide"], spikeSpeedMps: 25, vehicleSpeedMps: 14, maxAvgSpeedMps: 8 },
+  },
+  swim: {
+    label: "Swim",
+    plural: "open-water swims",
+    note: "Only open-water swims have GPS. Pool swims can't be verified.",
+    rules: {
+      ...GPS_RULES,
+      allowedSportTypes: ["Swim"],
+      minDistanceM: 250,
+      spikeSpeedMps: 5,
+      maxSpikeFraction: 0.15,
+      maxGapS: 120,
+      maxGapDisplacementM: 100,
+      vehicleSpeedMps: 2.5,
+      maxAvgSpeedMps: 1.8,
+      maxDistanceMismatch: 0.35,
+    },
+  },
+  row: {
+    label: "Row",
+    plural: "outdoor rows",
+    note: "Indoor rowing has no GPS and can't be verified.",
+    rules: { ...GPS_RULES, allowedSportTypes: ["Rowing"], spikeSpeedMps: 10, vehicleSpeedMps: 8, maxAvgSpeedMps: 6 },
+  },
+  sail: {
+    label: "Sail",
+    plural: "sails",
+    note: "A speed check can't tell a sailboat from a motorboat.",
+    rules: {
+      ...GPS_RULES,
+      allowedSportTypes: ["Sail"],
+      minDistanceM: 2000,
+      minDurationS: 600,
+      spikeSpeedMps: 20,
+      vehicleSpeedMps: 13,
+      maxAvgSpeedMps: 9,
+    },
+  },
+};
+
+export const isActivityKind = (value: unknown): value is ActivityKind => ACTIVITY_KINDS.includes(value as ActivityKind);
+
+/** Rules for a pact's activity; unknown values fall back to running so old pacts keep working. */
+export function rulesFor(kind: string | null | undefined): GpsRules {
+  return isActivityKind(kind) ? ACTIVITY_PROFILES[kind].rules : GPS_RULES;
+}

@@ -5,6 +5,7 @@ import {
   type ActivityStreams,
   type ChallengeWindow,
   type CheckResult,
+  type GpsRules,
   type ReasonCode,
 } from "@oathmile/core";
 import { StravaError, type StravaErrorKind, type StravaSummaryActivity } from "./strava";
@@ -75,6 +76,8 @@ export async function runSync(opts: {
   now: Date;
   alreadyChecked: Set<string>;
   maxNew?: number;
+  /** The pact's activity rules (see rulesFor); running when omitted. */
+  rules?: GpsRules;
 }): Promise<SyncOutcome> {
   const { source, window, now, alreadyChecked } = opts;
   const maxNew = opts.maxNew ?? MAX_NEW_PER_SYNC;
@@ -110,7 +113,7 @@ export async function runSync(opts: {
         throw err;
       }
     }
-    const result = checkActivity(activity, streams, window);
+    const result = checkActivity(activity, streams, window, opts.rules);
     checked.push({
       strava_activity_id: Number(activity.id),
       verdict: result.verdict,

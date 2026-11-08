@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { cadOf } from "@/lib/format";
+import { ACTIVITY_KINDS, ACTIVITY_PROFILES, type ActivityKind } from "@oathmile/core";
 import { GOAL_PRESETS_KM, STAKE_PRESETS_SOL } from "@/lib/pact-create";
 import { SOL_CAD_RATE } from "@/lib/rate";
 
@@ -48,6 +49,7 @@ function Chips<T extends string | number>({
 export function NewPactForm() {
   const router = useRouter();
   const [title, setTitle] = useState("");
+  const [activity, setActivity] = useState<ActivityKind>("run");
   const [goalKm, setGoalKm] = useState<number>(10);
   const [stakeSol, setStakeSol] = useState<number>(0.1);
   const [visibility, setVisibility] = useState<"invite" | "public">("invite");
@@ -73,6 +75,7 @@ export function NewPactForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
+          activity,
           goalKm,
           stakeSol,
           visibility,
@@ -109,7 +112,19 @@ export function NewPactForm() {
         />
       </div>
 
-      <Chips legend="Goal distance, total" name="goal" value={goalKm} onChange={setGoalKm} options={GOAL_PRESETS_KM.map((km) => ({ value: km, label: `${km} km` }))} />
+      <Chips
+        legend="Activity"
+        name="activity"
+        value={activity}
+        onChange={(kind) => {
+          setActivity(kind);
+          setGoalKm(GOAL_PRESETS_KM[kind][1]);
+        }}
+        options={ACTIVITY_KINDS.map((kind) => ({ value: kind, label: ACTIVITY_PROFILES[kind].label }))}
+      />
+      {ACTIVITY_PROFILES[activity].note && <p className="-mt-3 text-sm text-muted">{ACTIVITY_PROFILES[activity].note}</p>}
+
+      <Chips legend="Goal distance, total" name="goal" value={goalKm} onChange={setGoalKm} options={GOAL_PRESETS_KM[activity].map((km) => ({ value: km, label: `${km} km` }))} />
       <Chips
         legend="Commitment deposit"
         name="stake"

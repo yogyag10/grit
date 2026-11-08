@@ -46,16 +46,16 @@ export type ReasonCode = (typeof REASON_CODES)[number];
 
 /** Participant-facing text. These describe eligibility, not proven cheating. */
 export const REASON_MESSAGES: Record<ReasonCode, string> = {
-  WRONG_SPORT_TYPE: "Only outdoor runs count toward this pact.",
-  MANUAL_ENTRY: "Manually entered activities don't count. Record runs with GPS.",
+  WRONG_SPORT_TYPE: "This type of activity doesn't count toward this pact.",
+  MANUAL_ENTRY: "Manually entered activities don't count. Record them with GPS.",
   OUTSIDE_WINDOW: "This activity happened outside the pact dates.",
-  TOO_SHORT: "Each run needs to be at least 1 km and 5 minutes.",
+  TOO_SHORT: "This activity is shorter than this pact's minimum distance or time.",
   MISSING_GPS: "We couldn't find usable GPS data for this activity.",
-  GPS_GAP: "GPS stopped while you were moving, so we can't verify this run.",
-  NOISY_GPS: "The GPS signal was too noisy to verify this run.",
+  GPS_GAP: "GPS stopped while you were moving, so we can't verify this activity.",
+  NOISY_GPS: "The GPS signal was too noisy to verify this activity.",
   VEHICLE_SPEED: "Part of this activity moved at vehicle speed.",
-  IMPLAUSIBLE_PACE: "The average pace is faster than we can verify for a run.",
-  TOO_SLOW: "The average pace is slower than this pact's running minimum.",
+  IMPLAUSIBLE_PACE: "The average speed is faster than we can verify for this activity.",
+  TOO_SLOW: "The average speed is slower than this pact's minimum.",
   DISTANCE_MISMATCH: "The recorded distance doesn't match the GPS track.",
 };
 

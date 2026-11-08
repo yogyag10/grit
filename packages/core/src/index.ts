@@ -1,4 +1,13 @@
-export { GPS_RULES, type GpsRules } from "./config";
+export {
+  ACTIVITY_KINDS,
+  ACTIVITY_PROFILES,
+  GPS_RULES,
+  isActivityKind,
+  rulesFor,
+  type ActivityKind,
+  type ActivityProfile,
+  type GpsRules,
+} from "./config";
 export { checkActivity } from "./gps";
 export { computeProgress, type Progress, type SyncedResult } from "./progress";
 export {

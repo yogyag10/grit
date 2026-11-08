@@ -78,7 +78,7 @@ Never add generated or made-up activities to `data/real/`.
 
 | Rule | Value | Why |
 |---|---|---|
-| Sport type | Run, TrailRun | VirtualRun (treadmill apps) excluded |
+| Sport type | Per activity (see `ACTIVITY_PROFILES`): Run + TrailRun, TrailRun, Walk, Hike, Ride + GravelRide, MountainBikeRide, Swim, Rowing, Sail | Virtual and e-bike activities excluded |
 | Minimum | 1 km and 5 min | Ignore accidental recordings |
 | Spike filter | out-and-back jumps over 12 m/s | Drops single bad GPS points, not steady vehicle motion |
 | Noisy track | over 5% spikes | Not enough clean evidence |

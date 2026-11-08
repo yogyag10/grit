@@ -1,4 +1,17 @@
-export const GOAL_PRESETS_KM = [5, 10, 20, 42] as const;
+import { isActivityKind, type ActivityKind } from "@oathmile/core";
+
+/** Goal distances offered for each activity. A swim or a sail doesn't cover the same ground as a ride. */
+export const GOAL_PRESETS_KM: Record<ActivityKind, readonly number[]> = {
+  run: [5, 10, 20, 42],
+  trail_run: [5, 10, 20, 42],
+  walk: [5, 10, 20, 42],
+  hike: [5, 10, 20, 42],
+  ride: [20, 50, 100, 200],
+  mountain_bike: [10, 25, 50, 100],
+  swim: [1, 2, 5, 10],
+  row: [5, 10, 20, 42],
+  sail: [10, 20, 50, 100],
+};
 export const STAKE_PRESETS_SOL = [0.05, 0.1, 0.25] as const;
 export const MAX_ACTIVE_HOSTED = 3;
 
@@ -11,6 +24,7 @@ const SYNC_GRACE_MS = 3600_000;
 
 export interface NewPact {
   title: string;
+  activity: ActivityKind;
   goal_meters: number;
   stake_lamports: number;
   visibility: "public" | "invite";
@@ -27,7 +41,9 @@ export function parseNewPact(body: unknown, now = Date.now()): ParsedPact {
   const b = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
   const title = typeof b.title === "string" ? b.title.trim().replace(/\s+/g, " ") : "";
   if (!TITLE.test(title)) return { ok: false, error: "Name the pact with 3 to 50 letters, numbers or spaces." };
-  if (!GOAL_PRESETS_KM.some((km) => km === b.goalKm)) return { ok: false, error: "Pick one of the goal distances." };
+  const activity = b.activity ?? "run";
+  if (!isActivityKind(activity)) return { ok: false, error: "Pick one of the activities." };
+  if (!GOAL_PRESETS_KM[activity].some((km) => km === b.goalKm)) return { ok: false, error: "Pick one of the goal distances." };
   if (!STAKE_PRESETS_SOL.some((sol) => sol === b.stakeSol)) return { ok: false, error: "Pick one of the deposit amounts." };
   if (b.visibility !== "public" && b.visibility !== "invite") return { ok: false, error: "Choose public or invite only." };
 
@@ -44,6 +60,7 @@ export function parseNewPact(body: unknown, now = Date.now()): ParsedPact {
     ok: true,
     pact: {
       title,
+      activity,
       goal_meters: (b.goalKm as number) * 1000,
       stake_lamports: Math.round((b.stakeSol as number) * 1_000_000_000),
       visibility: b.visibility,

@@ -37,6 +37,18 @@ do $$ begin
   end;
 end $$;
 
+-- A pact's activity must be one we have rules for; existing pacts default to running.
+do $$ begin
+  assert (select activity from public.pacts where id = '10000000-0000-0000-0000-000000000001') = 'run', 'pacts default to run';
+  begin
+    update public.pacts set activity = 'skydiving' where id = '10000000-0000-0000-0000-000000000001';
+    raise exception 'an unknown activity was accepted';
+  exception when check_violation then null;
+  end;
+  update public.pacts set activity = 'swim' where id = '10000000-0000-0000-0000-000000000001';
+  update public.pacts set activity = 'run' where id = '10000000-0000-0000-0000-000000000001';
+end $$;
+
 -- Community constraints the app relies on.
 do $$ begin
   begin

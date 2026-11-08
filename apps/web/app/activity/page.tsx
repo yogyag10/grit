@@ -113,11 +113,11 @@ export default async function ActivityPage() {
           </p>
         </Card>
 
-        <h2 className="pt-2 text-xl font-bold">Recent runs</h2>
+        <h2 className="pt-2 text-xl font-bold">Recent activities</h2>
         {recent.length === 0 ? (
           <EmptyState
             icon={<TrendingUp className="size-8" />}
-            text="No runs checked yet. Sync from a pact page after your next run."
+            text="Nothing checked yet. Sync from a pact page after your next activity."
             action={
               <ButtonLink href="/pacts" size="sm" full={false}>
                 Go to my pacts

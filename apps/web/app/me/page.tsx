@@ -46,7 +46,7 @@ export default async function MePage() {
         </Card>
 
         <Card className="flex flex-col gap-4 p-5">
-          <Row label="Strava" ok={!!profile?.strava_athlete_id} detail="Used to check your runs against your pacts." />
+          <Row label="Strava" ok={!!profile?.strava_athlete_id} detail="Used to check your activities against your pacts." />
           <hr className="border-line" />
           <Row
             label="Demo wallet"

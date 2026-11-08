@@ -26,6 +26,17 @@ describe("parseNewPact", () => {
     expect(parseNewPact({ ...base, stakeSol: 5 }, NOW).ok).toBe(false);
     expect(parseNewPact({ ...base, visibility: "secret" }, NOW).ok).toBe(false);
   });
+  it("defaults to running and accepts the other activities with their own goal presets", () => {
+    const r = parseNewPact(base, NOW);
+    expect(r.ok && r.pact.activity).toBe("run");
+    expect(parseNewPact({ ...base, activity: "swim", goalKm: 2 }, NOW).ok).toBe(true);
+    expect(parseNewPact({ ...base, activity: "ride", goalKm: 50 }, NOW).ok).toBe(true);
+  });
+  it("rejects unknown activities and a goal that isn't a preset for the activity", () => {
+    expect(parseNewPact({ ...base, activity: "skydiving" }, NOW).ok).toBe(false);
+    expect(parseNewPact({ ...base, activity: "swim", goalKm: 42 }, NOW).ok).toBe(false);
+    expect(parseNewPact({ ...base, activity: "ride", goalKm: 5 }, NOW).ok).toBe(false);
+  });
   it("rejects bad titles", () => {
     expect(parseNewPact({ ...base, title: "ab" }, NOW).ok).toBe(false);
     expect(parseNewPact({ ...base, title: "<script>" }, NOW).ok).toBe(false);

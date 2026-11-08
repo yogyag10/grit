@@ -27,7 +27,8 @@ export async function POST(request: Request) {
     const inviteCode = pact.visibility === "invite" ? generateInviteCode() : null;
     const { data: created, error } = await admin
       .from("pacts")
-      .insert({ ...pact, host_id: user.id, invite_code: inviteCode })
+      // Running is the column default, so it is left out: creating a run pact works even before migration 0005 is applied.
+      .insert({ ...pact, ...(pact.activity === "run" ? { activity: undefined } : {}), host_id: user.id, invite_code: inviteCode })
       .select("id")
       .single();
     if (error?.code === "23505") continue; // invite code collision: draw another

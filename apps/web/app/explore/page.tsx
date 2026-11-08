@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { AppShell, PageHeader } from "@/components/ui/AppShell";
+import { ACTIVITY_PROFILES, isActivityKind } from "@oathmile/core";
 import { km, solCad, solShort, when } from "@/lib/format";
 import { demoPledges } from "@/lib/demo-pledges";
 import { DEMO_PACT_ID, DEMO_PACT_TITLE, isRetiredSeedPact } from "@/lib/demo-pact";
@@ -18,7 +19,7 @@ export default async function ExplorePage() {
   const supabase = await createSupabaseServer();
   const { data: pacts } = await supabase
     .from("pacts")
-    .select("id, title, goal_meters, stake_lamports, starts_at, ends_at, funding_cutoff, is_demo, cancelled_at")
+    .select("*") // all columns, so Explore keeps working before the activity migration is applied
     .is("cancelled_at", null);
   const list = (pacts ?? []).filter(p => !isRetiredSeedPact(p.id)).map(p => p.id === DEMO_PACT_ID ? { ...p, title: DEMO_PACT_TITLE } : p);
   const ids = list.map((p) => p.id);
@@ -48,7 +49,7 @@ export default async function ExplorePage() {
     const joinOpen = now.getTime() < Date.parse(p.funding_cutoff);
     const joined = mine.has(p.id);
     const lines = [
-      `${km(p.goal_meters, 0)} in ${pactLengthDays(p)} days · ${solCad(Number(p.stake_lamports))}`,
+      `${ACTIVITY_PROFILES[isActivityKind(p.activity) ? p.activity : "run"].label} · ${km(p.goal_meters, 0)} in ${pactLengthDays(p)} days · ${solCad(Number(p.stake_lamports))}`,
     ];
     if (p.is_demo) lines.push("Demo pact");
 
