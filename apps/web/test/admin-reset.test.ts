@@ -9,11 +9,21 @@ const request = (body?: string, authorization = `Bearer ${secret}`) => new Reque
   method: "POST", headers: { authorization }, body,
 });
 function database() {
-  const rpc = vi.fn().mockResolvedValue({ error: null });
+  const operations: string[] = [];
+  const rpc = vi.fn();
+  const deleteTable = vi.fn().mockImplementation(async (table: string) => {
+    operations.push(`delete:${table}`);
+    return { error: null };
+  });
+  const insert = vi.fn().mockImplementation(async () => { operations.push("seed"); return { error: null }; });
+  const from = vi.fn().mockImplementation((table: string) => ({
+    delete: () => ({ not: (column: string, op: string, value: unknown) => deleteTable(table, column, op, value) }),
+    insert,
+  }));
   const listUsers = vi.fn().mockResolvedValue({ data: { users: [] }, error: null });
-  const deleteUser = vi.fn().mockResolvedValue({ error: null });
-  const admin = { rpc, auth: { admin: { listUsers, deleteUser } } } as unknown as SupabaseClient<Database>;
-  return { admin, rpc, listUsers, deleteUser };
+  const deleteUser = vi.fn().mockImplementation(async (id: string) => { operations.push(`auth:${id}`); return { error: null }; });
+  const admin = { from, rpc, auth: { admin: { listUsers, deleteUser } } } as unknown as SupabaseClient<Database>;
+  return { admin, rpc, from, deleteTable, insert, listUsers, deleteUser, operations };
 }
 
 describe("operator reset authorization", () => {
@@ -54,9 +64,9 @@ describe("database and account reset", () => {
     const db = database();
     const result = await resetAppDatabase(db.admin, true);
     expect(result.scope).toBe("pact-data");
-    expect(db.rpc).toHaveBeenCalledWith("reset_app_data", {
-      p_demo: expect.objectContaining({ id: DEMO_PACT_ID, title: "Demo", is_demo: true }), p_keep_accounts: true,
-    });
+    expect(db.insert).toHaveBeenCalledWith(expect.objectContaining({ id: DEMO_PACT_ID, title: "Demo", is_demo: true }));
+    expect(db.rpc).not.toHaveBeenCalled();
+    expect(db.deleteTable.mock.calls.some(call => ["profiles", "strava_tokens", "groups"].includes(call[0]))).toBe(false);
     expect(db.listUsers).not.toHaveBeenCalled();
     expect(db.deleteUser).not.toHaveBeenCalled();
   });
@@ -68,20 +78,52 @@ describe("database and account reset", () => {
     expect(result.usersDeleted).toBe(3);
     expect(db.deleteUser.mock.calls.map(call => call[0])).toEqual(["a", "b", "c"]);
     expect(db.listUsers.mock.calls.every(call => call[0].page === 1)).toBe(true);
+    expect(db.operations.indexOf("delete:messages")).toBeLessThan(db.operations.indexOf("delete:groups"));
+    expect(db.operations.indexOf("delete:groups")).toBeLessThan(db.operations.indexOf("delete:profiles"));
+    expect(db.operations.indexOf("delete:payouts")).toBeLessThan(db.operations.indexOf("delete:settlements"));
+    expect(db.operations.indexOf("delete:deposits")).toBeLessThan(db.operations.indexOf("delete:memberships"));
+    expect(db.operations.indexOf("delete:profiles")).toBeLessThan(db.operations.indexOf("auth:a"));
+    expect(db.operations.at(-1)).toBe("seed");
+    expect(db.rpc).not.toHaveBeenCalled();
+    expect(db.deleteTable.mock.calls.every(call => call[2] === "is" && call[3] === null)).toBe(true);
   });
   it("does not clear app data if the initial auth-account check fails", async () => {
     const db = database();
     db.listUsers.mockResolvedValue({ data: null, error: { message: "unavailable" } });
     await expect(resetAppDatabase(db.admin, false)).rejects.toThrow("Reset did not start");
-    expect(db.rpc).not.toHaveBeenCalled();
+    expect(db.from).not.toHaveBeenCalled();
   });
   it("reports a partially completed account wipe instead of claiming success", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
     const db = database();
     db.listUsers.mockResolvedValueOnce({ data: { users: [{ id: "a" }, { id: "b" }] }, error: null });
     db.deleteUser.mockResolvedValueOnce({ error: null }).mockResolvedValueOnce({ error: { message: "failed" } });
     const response = await adminResetResponse(request(), { secret, reset: keep => resetAppDatabase(db.admin, keep) });
     expect(response.status).toBe(500);
     expect(await response.json()).toMatchObject({ partial: true, usersDeleted: 1 });
+    log.mockRestore();
+  });
+  it("stops on a failed table delete and allows a successful retry without an RPC", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const db = database();
+    db.deleteTable.mockResolvedValueOnce({ error: { message: "unavailable" } });
+    const response = await adminResetResponse(request(), { secret, reset: keep => resetAppDatabase(db.admin, keep) });
+    expect(response.status).toBe(500);
+    expect(await response.json()).toMatchObject({ partial: true });
+    expect(db.insert).not.toHaveBeenCalled();
+    expect(db.deleteUser).not.toHaveBeenCalled();
+    expect((await resetAppDatabase(db.admin, false)).ok).toBe(true);
+    expect(db.rpc).not.toHaveBeenCalled();
+    log.mockRestore();
+  });
+  it("reports failure when recreating Demo fails after the wipe", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const db = database();
+    db.insert.mockResolvedValueOnce({ error: { message: "unavailable" } });
+    const response = await adminResetResponse(request(), { secret, reset: keep => resetAppDatabase(db.admin, keep) });
+    expect(response.status).toBe(500);
+    expect(await response.json()).toMatchObject({ partial: true, error: expect.stringContaining("creating Demo") });
+    log.mockRestore();
   });
 });
 

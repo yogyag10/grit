@@ -1,15 +1,22 @@
 import { timingSafeEqual } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { demoPactSeed, DEMO_PACT_ID } from "./demo-pact";
-import type { Database, Json } from "./supabase/database.types";
+import type { Database } from "./supabase/database.types";
 
 class PartialResetError extends Error {
-  constructor(public usersDeleted: number) {
-    super("App data was reset, but account deletion did not finish. Retry the reset to finish.");
+  constructor(stage: string, public usersDeleted: number) {
+    super(`Reset stopped while ${stage}. Some data may already be deleted. Retry the reset to finish.`);
   }
 }
 
-/** The RPC clears app rows and recreates Demo atomically. Auth accounts use Supabase's admin API. */
+// Child tables precede their parents, so ordinary REST deletes satisfy the foreign keys.
+const PACT_TABLES = [
+  ["payouts", "id"], ["settlements", "pact_id"], ["activity_checks", "pact_id"],
+  ["sync_errors", "id"], ["deposits", "signature"], ["memberships", "pact_id"], ["pacts", "id"],
+] as const;
+const COMMUNITY_TABLES = [["messages", "id"], ["group_members", "group_id"], ["groups", "id"]] as const;
+
+/** Uses only existing Supabase table and Auth APIs; no reset-specific SQL or RPC is required. */
 export async function resetAppDatabase(admin: SupabaseClient<Database>, keepAccounts: boolean) {
   let usersDeleted = 0;
   let users: { id: string }[] = [];
@@ -18,28 +25,36 @@ export async function resetAppDatabase(admin: SupabaseClient<Database>, keepAcco
     if (error) throw new Error("Couldn't read sign-in accounts. Reset did not start.");
     users = data.users;
   }
-  const { error } = await admin.rpc("reset_app_data", {
-    p_demo: demoPactSeed() as Json,
-    p_keep_accounts: keepAccounts,
-  });
-  if (error) {
-    console.error("admin reset RPC failed", error.code);
-    throw new Error(error.code === "PGRST202"
-      ? "Apply migration 0004_admin_reset.sql before using reset."
-      : "Database reset failed. Check the server logs before retrying.");
-  }
-  if (!keepAccounts) {
-    while (users.length) {
-      for (let i = 0; i < users.length; i += 5) {
-        const results = await Promise.all(users.slice(i, i + 5).map(user => admin.auth.admin.deleteUser(user.id)));
-        usersDeleted += results.filter(result => !result.error).length;
-        if (results.some(result => result.error)) throw new PartialResetError(usersDeleted);
-      }
-      // Always read page 1: deleting users moves later accounts into the first page.
-      const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 50 });
-      if (error) throw new PartialResetError(usersDeleted);
-      users = data.users;
+  const tables = keepAccounts ? PACT_TABLES : [
+    ...COMMUNITY_TABLES, ...PACT_TABLES, ["strava_tokens", "user_id"], ["profiles", "id"],
+  ] as const;
+  let stage = "clearing app data";
+  try {
+    for (const [table, column] of tables) {
+      stage = `clearing ${table}`;
+      const { error } = await admin.from(table).delete().not(column, "is", null);
+      if (error) throw error;
     }
+    if (!keepAccounts) {
+      stage = "deleting sign-in accounts";
+      while (users.length) {
+        for (let i = 0; i < users.length; i += 5) {
+          const results = await Promise.all(users.slice(i, i + 5).map(user => admin.auth.admin.deleteUser(user.id)));
+          usersDeleted += results.filter(result => !result.error).length;
+          if (results.some(result => result.error)) throw new Error("Account deletion failed");
+        }
+        // Always read page 1: deleting users moves later accounts into the first page.
+        const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 50 });
+        if (error) throw error;
+        users = data.users;
+      }
+    }
+    stage = "creating Demo";
+    const { error } = await admin.from("pacts").insert(demoPactSeed());
+    if (error) throw error;
+  } catch {
+    console.error("admin reset failed while", stage);
+    throw new PartialResetError(stage, usersDeleted);
   }
   return { ok: true, scope: keepAccounts ? "pact-data" : "app-data-and-accounts",
     usersDeleted, demoPactId: DEMO_PACT_ID, demoPath: `/pacts/${DEMO_PACT_ID}` };

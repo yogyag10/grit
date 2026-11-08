@@ -2,7 +2,7 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 
-type Variant = "primary" | "secondary" | "ghost" | "light" | "strava";
+type Variant = "primary" | "secondary" | "ghost" | "light" | "strava" | "danger";
 type Size = "md" | "sm";
 
 const base =
@@ -13,6 +13,7 @@ const variants: Record<Variant, string> = {
   ghost: "text-muted hover:text-ink",
   light: "bg-ink text-oath-ink hover:brightness-95",
   strava: "bg-[#fc4c02] text-white hover:brightness-95",
+  danger: "border border-missed/40 bg-missed-soft text-missed hover:brightness-110",
 };
 const sizes: Record<Size, string> = { md: "h-12 px-6 text-base", sm: "h-10 px-4 text-sm" };
 

@@ -79,8 +79,11 @@ See `CLAUDE.md` for the project requirements and build order.
 
 ## Operator reset endpoint
 
-Apply `supabase/migrations/0004_admin_reset.sql` after the community migration, then set a separate `ADMIN_RESET_SECRET`
-in `apps/web/.env.local` and the deployment environment. An empty secret disables the endpoint.
+Open **`/admin/reset`**, enter the operator reset key, and choose **Wipe and reset demo**.
+Set `ADMIN_RESET_SECRET` in `apps/web/.env.local` and the deployment environment. An empty secret
+disables reset. The key is entered into the page and is never embedded in its code or stored by the page.
+No reset-specific SQL migration is required: the endpoint uses the existing Supabase table and
+Auth admin APIs with the server's service-role key. The normal app schema must already exist.
 
 ```sh
 curl -X POST "$APP_URL/api/admin/reset" \
@@ -95,3 +98,6 @@ The database schema, RLS, migrations, project settings, and treasury keys stay i
 Solana transactions already sent cannot be erased or reversed by a database reset. Browser
 wallet data stays in the browser. Stop scheduled settlement runs while resetting.
 Account deletion uses Supabase's admin API; a partial failure returns an error and can be retried.
+Table deletes run in dependency order across separate requests. If a step fails, the page reports a
+partial reset instead of claiming success. The old reset SQL migration is retained as migration
+history, but the endpoint no longer calls its function.
