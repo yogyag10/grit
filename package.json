@@ -7,7 +7,8 @@
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "make-treasury": "tsx scripts/make-treasury.ts",
-    "test:rls": "bash scripts/test-rls.sh"
+    "test:rls": "bash scripts/test-rls.sh",
+    "seed": "pnpm --filter @movepact/web seed"
   },
   "devDependencies": {
     "@solana/web3.js": "1.99.0",
