@@ -1,2 +1,4 @@
 node_modules
 eval-results.md
+/data/real/*
+!/data/real/.gitkeep

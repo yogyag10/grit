@@ -5,6 +5,10 @@ node_modules
 !.env.example
 .vercel
 *.tsbuildinfo
+*.log
+coverage/
+.pnpm-store/
+/artifacts/
 .DS_Store
 scripts/.treasury-secret.json
 scripts/.devnet-demo-participant.json

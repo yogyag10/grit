@@ -18,7 +18,7 @@ Node parameters may need small adjustments on other n8n versions.
   "settledPacts": 1,
   "pacts": [
     {
-      "title": "Demo pact A",
+      "title": "Campus run",
       "outcome": "split",
       "members": 5,
       "qualifiers": 3,

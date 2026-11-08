@@ -1,103 +1,67 @@
 # Grit
 
-Put your money where your movement is. Verified UBC students join a pact, put in an equal commitment deposit (devnet SOL), and run toward a goal. Everyone who reaches it splits the pool. If everyone or no one makes it, everyone gets their deposit back. No platform fee.
+**Put your money where your movement is.**
 
-Devnet only. No real funds.
+Grit is a fitness pact app for UBC students. Set a distance goal with friends, make an equal commitment deposit, and track your progress through Strava. Everyone who clears the goal splits the pool. If everyone or nobody clears it, everyone gets their deposit back. There is no platform fee.
 
-## Layout
+## Features
 
-```
-apps/web/            Next.js app (UI + server routes)
-packages/core/       GPS checks, progress, settlement math (tested)
-scripts/             make-treasury.ts (more to come)
-```
+- UBC student email sign-in
+- Public and invite-only pacts across running, cycling, walking, and other activities
+- Strava activity sync with GPS eligibility checks
+- Browser wallets, verified deposits, and transaction receipts on Solana devnet
+- Private activity history and optional shared standings
+- Campus chat and community groups
+- Scheduled settlement through n8n
 
-## Run it
+The current app uses Solana devnet and free test SOL, with no real money involved.
 
-Needs Node 22+ and pnpm 11.
+## Getting started
+
+Requires Node.js 22+ and pnpm 11.
 
 ```sh
 pnpm install
-cp apps/web/.env.example apps/web/.env.local   # then fill in the values
-pnpm --filter @oathmile/web dev                # http://localhost:3000
+cp apps/web/.env.example apps/web/.env.local
 ```
 
-Checks:
+Configure the services in `apps/web/.env.local`:
+
+1. **Supabase:** apply [`supabase/migrations/`](supabase/migrations) in filename order, enable email sign-in, and configure email delivery with the [sign-in template](supabase/templates/sign_in.html). Add the project URL, anon key, and service-role key. Allow `http://localhost:3000/auth/callback` as an auth redirect.
+2. **Strava:** add the client ID and secret. Set the callback domain to `localhost`; the app handles OAuth at `/api/strava/callback`.
+3. **Solana:** run `pnpm make-treasury`, fund the generated address with [free devnet SOL](https://faucet.solana.com/), and set `NEXT_PUBLIC_TREASURY_ADDRESS` and `TREASURY_SECRET_KEY`. The keypair is saved locally in the gitignored `scripts/.treasury-secret.json`.
+4. **App:** set `APP_URL=http://localhost:3000`. For scheduled settlement, set `SETTLEMENT_API_SECRET` and import the [n8n workflow](n8n/README.md).
+
+```sh
+pnpm seed  # optional sample pact
+pnpm dev   # http://localhost:3000
+```
+
+Sign in with a `@student.ubc.ca` email address. Set up a browser wallet and connect Strava from the account setup page.
+
+## Development
 
 ```sh
 pnpm typecheck
 pnpm test
-pnpm --filter @oathmile/web build
+pnpm build
+pnpm start
 ```
 
-## Treasury keypair (devnet)
+`pnpm test:rls` checks database policies in a disposable Postgres container and requires Docker. `pnpm demo:solana` runs a standalone devnet deposit/refund check using the configured treasury.
 
-The app uses browser demo wallets. On the setup page, choose **Use demo wallet**; the key is
-saved in that browser for the signed-in account. Deposits are funded with free test SOL from
-the treasury, signed in the browser, and verified on-chain by the existing deposit endpoint.
-Payouts go back to the same demo wallet. A browser extension is not required.
+## Project structure
 
-Configure the treasury locally and on Vercel before trying deposits:
+| Path | Purpose |
+| --- | --- |
+| [`apps/web/`](apps/web) | Next.js application and server routes |
+| [`packages/core/`](packages/core) | GPS checks, progress, and settlement calculations |
+| [`supabase/`](supabase) | Database migrations, access policies, and email template |
+| [`n8n/`](n8n) | Settlement workflow |
+| [`scripts/`](scripts) | Development and verification utilities |
 
-```sh
-pnpm make-treasury
-```
+Built with Next.js, React, TypeScript, Tailwind CSS, Supabase, Strava, Solana, and n8n. The application is named Grit; workspace packages use the `@oathmile` namespace.
 
-Prints the public address and writes the secret to `scripts/.treasury-secret.json` (gitignored). Fund the address at https://faucet.solana.com, and put the values in `NEXT_PUBLIC_TREASURY_ADDRESS` and `TREASURY_SECRET_KEY`.
+## Credits
 
-## Live Solana Devnet demo (no browser wallet required)
-
-Use `NEXT_PUBLIC_SOLANA_RPC_URL=https://api.devnet.solana.com` in `apps/web/.env.local`.
-After configuring and funding the treasury above, run:
-
-```sh
-pnpm demo:solana
-```
-
-The script checks that the RPC is on Devnet, funds a dedicated test wallet, sends a real
-0.001 test SOL deposit, verifies it with the app's deposit verifier, and refunds it using the
-settlement math and live transfer adapter. The test wallet's private key is saved in the
-gitignored `scripts/.devnet-demo-participant.json`.
-
-Transaction signatures, confirmation status, and Explorer links are saved under
-`artifacts/solana-devnet/`. Open the deposit and refund links to screenshot the Devnet network,
-confirmed status, and transferred amounts. This is a live Solana integration test with test
-wallets; it does not exercise Supabase, Strava, n8n, or prove the complete application flow.
-If a run fails after sending a transfer, check its saved signatures before running again.
-
-## Status
-
-`pnpm seed` creates one **Demo** pact (3 km, 0.1 test SOL, open for 48 hours). `pnpm seed --force`
-reopens its window. The retired fixed seed variants are omitted from pact lists.
-
-Demo pacts (`is_demo=true`) include a stable crowd of 20–30 labelled sample pledges on
-Explore, pact details, and the leaderboard. These are display fixtures, so existing demo
-pacts pick them up on deployment without reseeding. Real app memberships are added to the
-pledged count; pool receipts and settlement use only real memberships and verified deposits.
-
-See `CLAUDE.md` for the project requirements and build order.
-
-## Operator reset endpoint
-
-Open **`/admin/reset`**, enter the operator reset key, and choose **Wipe and reset demo**.
-Set `ADMIN_RESET_SECRET` in `apps/web/.env.local` and the deployment environment. An empty secret
-disables reset. The key is entered into the page and is never embedded in its code or stored by the page.
-No reset-specific SQL migration is required: the endpoint uses the existing Supabase table and
-Auth admin APIs with the server's service-role key. The normal app schema must already exist.
-
-```sh
-curl -X POST "$APP_URL/api/admin/reset" \
-  -H "Authorization: Bearer $ADMIN_RESET_SECRET"
-```
-
-This erases all app data (including community groups and chat) and sign-in accounts, then creates one fresh **Demo** with its sample
-pledges. To keep sign-ins, profiles, wallet links, and Strava connections, add
-`-H 'Content-Type: application/json' --data '{"keepAccounts":true}'`.
-
-The database schema, RLS, migrations, project settings, and treasury keys stay in place.
-Solana transactions already sent cannot be erased or reversed by a database reset. Browser
-wallet data stays in the browser. Stop scheduled settlement runs while resetting.
-Account deletion uses Supabase's admin API; a partial failure returns an error and can be retried.
-Table deletes run in dependency order across separate requests. If a step fails, the page reports a
-partial reset instead of claiming success. The old reset SQL migration is retained as migration
-history, but the endpoint no longer calls its function.
+Photo and map attribution is in [`apps/web/public/spots/CREDITS.md`](apps/web/public/spots/CREDITS.md). Grit is not affiliated with UBC.
