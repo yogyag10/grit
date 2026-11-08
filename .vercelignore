@@ -1,0 +1,5 @@
+**/.env*
+!**/.env.example
+scripts/.treasury-secret.json
+**/node_modules
+**/.next
