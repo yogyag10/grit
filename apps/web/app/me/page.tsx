@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AppShell, PageHeader } from "@/components/ui/AppShell";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/primitives";
+import { QUOTES } from "@/lib/quotes";
 import { createSupabaseServer, getUser } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +53,7 @@ export default async function MePage() {
             ok={!!wallet}
             detail={wallet ? `${wallet.slice(0, 4)}…${wallet.slice(-4)} · saved in this browser` : "Needed to deposit and get paid back."}
           />
+          <p className="text-sm text-muted">Don&apos;t clear site data before a pact settles, or you can&apos;t reach your payout.</p>
           <ButtonLink href="/onboarding" variant="secondary" size="sm">
             Manage Strava and wallet
           </ButtonLink>
@@ -61,11 +63,17 @@ export default async function MePage() {
           My pacts
         </ButtonLink>
 
-        <Card className="flex flex-col gap-2 p-5 text-muted">
-          <h2 className="text-lg font-bold text-ink">Good to know</h2>
-          <p>Your demo wallet lives in this browser. Don&apos;t clear site data before a pact settles, or you can&apos;t reach your payout.</p>
-          <p>Devnet only, no real money. Your runs stay private to you.</p>
-          <p className="text-sm">Spot photos are from Wikimedia Commons (CC BY and CC BY-SA). Credits are in the project repo.</p>
+        <Card className="flex flex-col gap-4 p-5">
+          <h2 className="text-lg font-bold">Keep moving</h2>
+          {QUOTES.map((q) => (
+            <figure key={q.by} className="flex flex-col gap-1">
+              <blockquote className="text-base text-ink">&ldquo;{q.text}&rdquo;</blockquote>
+              <figcaption className="text-sm text-muted">
+                {q.by}, {q.source}
+              </figcaption>
+            </figure>
+          ))}
+          <p className="text-xs text-muted">Spot photos are from Wikimedia Commons (CC BY and CC BY-SA). Credits are in the project repo.</p>
         </Card>
 
         <form action="/api/auth/signout" method="post">
