@@ -48,13 +48,11 @@ export default async function ExplorePage() {
     const joinOpen = now.getTime() < Date.parse(p.funding_cutoff);
     const joined = mine.has(p.id);
     const lines = [
-      `${km(p.goal_meters, 0)} in ${pactLengthDays(p)} days · ${solCad(Number(p.stake_lamports))} · ${
-        sampleCount ? `${count + sampleCount} pledged` : status === "upcoming" ? `${count} joined so far` : `${count} ${count === 1 ? "runner" : "runners"}`
-      }`,
+      `${km(p.goal_meters, 0)} in ${pactLengthDays(p)} days · ${solCad(Number(p.stake_lamports))}`,
     ];
-    if (p.is_demo) lines.push(`Demo pact · ${sampleCount} sample pledges`);
+    if (p.is_demo) lines.push("Demo pact");
 
-    let card: Omit<ExploreCard, "id" | "title" | "scene" | "status" | "pill" | "lines" | "searchText" | "startsAt" | "feeLamports">;
+    let card: Omit<ExploreCard, "id" | "title" | "scene" | "status" | "pill" | "lines" | "searchText" | "startsAt" | "feeLamports" | "pledges">;
     let pill: string;
     if (status === "ended") {
       pill = "Ended";
@@ -90,6 +88,7 @@ export default async function ExplorePage() {
       searchText: `${p.title} ${lines.join(" ")}`.toLowerCase(),
       startsAt: Date.parse(p.starts_at),
       feeLamports: Number(p.stake_lamports),
+      pledges: count + sampleCount,
       ...card,
       sort: status === "ended" ? 1e15 - Date.parse(p.ends_at) : Date.parse(p.starts_at),
     };

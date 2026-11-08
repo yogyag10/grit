@@ -19,6 +19,7 @@ export interface ExploreCard {
   searchText: string;
   startsAt: number;
   feeLamports: number;
+  pledges: number;
   cta: { label: string; href: string; variant: "primary" | "secondary" | "light"; lock: boolean };
 }
 
@@ -163,6 +164,7 @@ export function ExploreList({ cards }: { cards: ExploreCard[] }) {
             status={c.status}
             pill={c.pill}
             lines={c.lines}
+            pledges={c.pledges}
             footer={
               <>
                 <span className="flex items-center gap-1.5 text-[13px] text-muted">

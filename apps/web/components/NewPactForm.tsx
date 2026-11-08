@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { cadOf } from "@/lib/format";
-import { GOAL_KM_RANGE, GOAL_PRESETS_KM, STAKE_PRESETS_SOL, STAKE_SOL_RANGE } from "@/lib/pact-create";
+import { GOAL_PRESETS_KM, STAKE_PRESETS_SOL } from "@/lib/pact-create";
 import { SOL_CAD_RATE } from "@/lib/rate";
 
 const input =
@@ -48,15 +48,11 @@ function Chips<T extends string | number>({
 export function NewPactForm() {
   const router = useRouter();
   const [title, setTitle] = useState("");
-  const [goalChoice, setGoalChoice] = useState<number | "custom">(10);
-  const [goalCustom, setGoalCustom] = useState("");
-  const [stakeChoice, setStakeChoice] = useState<number | "custom">(0.1);
-  const [stakeCustom, setStakeCustom] = useState("");
+  const [goalKm, setGoalKm] = useState<number>(10);
+  const [stakeSol, setStakeSol] = useState<number>(0.1);
   const [visibility, setVisibility] = useState<"invite" | "public">("invite");
   const [startsAt, setStartsAt] = useState("");
   const [endsAt, setEndsAt] = useState("");
-  const goalKm = goalChoice === "custom" ? Number(goalCustom) : goalChoice;
-  const stakeSol = stakeChoice === "custom" ? Number(stakeCustom) : stakeChoice;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -113,76 +109,24 @@ export function NewPactForm() {
         />
       </div>
 
-      <Chips
-        legend="Goal distance, total"
-        name="goal"
-        value={goalChoice}
-        onChange={setGoalChoice}
-        options={[...GOAL_PRESETS_KM.map((km) => ({ value: km as number | "custom", label: `${km} km` })), { value: "custom", label: "Custom" }]}
-      />
-      {goalChoice === "custom" && (
-        <div className="-mt-2 flex flex-col gap-2">
-          <label htmlFor="goal-custom" className="text-sm font-semibold">
-            Distance in km ({GOAL_KM_RANGE.min} to {GOAL_KM_RANGE.max})
-          </label>
-          <input
-            id="goal-custom"
-            className={input}
-            type="number"
-            inputMode="decimal"
-            min={GOAL_KM_RANGE.min}
-            max={GOAL_KM_RANGE.max}
-            step={0.1}
-            value={goalCustom}
-            onChange={(e) => setGoalCustom(e.target.value)}
-            placeholder="e.g. 7.5"
-            required
-          />
-        </div>
-      )}
-
+      <Chips legend="Goal distance, total" name="goal" value={goalKm} onChange={setGoalKm} options={GOAL_PRESETS_KM.map((km) => ({ value: km, label: `${km} km` }))} />
       <Chips
         legend="Commitment deposit"
         name="stake"
-        value={stakeChoice}
-        onChange={setStakeChoice}
-        options={[
-          ...STAKE_PRESETS_SOL.map((sol) => ({
-            value: sol as number | "custom",
-            label: (
-              <span className="flex flex-col items-center leading-tight">
-                {sol.toFixed(2)} SOL
-                <span className="text-xs font-medium opacity-70">≈ {cadOf(sol * 1_000_000_000)}</span>
-              </span>
-            ),
-          })),
-          { value: "custom", label: "Custom" },
-        ]}
+        value={stakeSol}
+        onChange={setStakeSol}
+        options={STAKE_PRESETS_SOL.map((sol) => ({
+          value: sol,
+          label: (
+            <span className="flex flex-col items-center leading-tight">
+              {sol.toFixed(2)} SOL
+              <span className="text-xs font-medium opacity-70">≈ {cadOf(sol * 1_000_000_000)}</span>
+            </span>
+          ),
+        }))}
       />
-      {stakeChoice === "custom" && (
-        <div className="-mt-2 flex flex-col gap-2">
-          <label htmlFor="stake-custom" className="text-sm font-semibold">
-            Deposit in SOL ({STAKE_SOL_RANGE.min} to {STAKE_SOL_RANGE.max}, devnet)
-          </label>
-          <input
-            id="stake-custom"
-            className={input}
-            type="number"
-            inputMode="decimal"
-            min={STAKE_SOL_RANGE.min}
-            max={STAKE_SOL_RANGE.max}
-            step={0.001}
-            value={stakeCustom}
-            onChange={(e) => setStakeCustom(e.target.value)}
-            placeholder="e.g. 0.15"
-            required
-          />
-        </div>
-      )}
-      <p className="-mt-3 text-sm text-muted">
-        {Number.isFinite(stakeSol) && stakeSol > 0 ? `${stakeSol} SOL is about ${cadOf(stakeSol * 1_000_000_000)}. ` : ""}
-        Devnet SOL has no real value; CAD is shown at about C${Math.round(SOL_CAD_RATE)} per SOL.
-      </p>
+
+      <p className="-mt-3 text-sm text-muted">Devnet SOL has no real value; CAD is shown at about C${Math.round(SOL_CAD_RATE)} per SOL.</p>
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
@@ -216,7 +160,7 @@ export function NewPactForm() {
       </p>
 
       <p className="rounded-2xl bg-card p-4 text-sm text-muted">
-        Everyone who joins puts in {Number.isFinite(stakeSol) && stakeSol > 0 ? stakeSol : "your"} SOL (devnet) before the start time, and joining closes when the pact starts. Anyone who clears {Number.isFinite(goalKm) && goalKm > 0 ? goalKm : "the goal"} km
+        Everyone who joins puts in {stakeSol.toFixed(2)} SOL (≈ {cadOf(stakeSol * 1_000_000_000)}, devnet) before the start time, and joining closes when the pact starts. Anyone who clears {goalKm} km
         gets their deposit back plus an equal share of the deposits from people who don&apos;t. There is no fee. If nobody clears it, or everybody does, everyone is
         refunded. You join automatically and make your own deposit on the next page.
       </p>

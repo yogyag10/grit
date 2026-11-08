@@ -20,6 +20,7 @@ export function PhotoCard({
   status,
   pill,
   lines,
+  pledges,
   footer,
 }: {
   href: string;
@@ -28,6 +29,7 @@ export function PhotoCard({
   status: PactStatus;
   pill: string;
   lines: string[];
+  pledges?: number;
   footer: ReactNode;
 }) {
   return (
@@ -38,6 +40,15 @@ export function PhotoCard({
         <div className="absolute right-3 top-3">
           <ShareButton path={href} title={title} />
         </div>
+        {pledges !== undefined && (
+          <div
+            className="absolute bottom-3 left-3 flex size-[60px] flex-col items-center justify-center rounded-full bg-canvas/85 leading-none"
+            aria-label={`${pledges} ${pledges === 1 ? "pledge" : "pledges"}`}
+          >
+            <span className="text-lg font-extrabold tabular-nums">{pledges}</span>
+            <span className="mt-0.5 text-[10px] font-semibold text-muted">{pledges === 1 ? "pledge" : "pledges"}</span>
+          </div>
+        )}
         <RouteMapButton spot={scene} className="absolute bottom-3 right-3">
           <MapInset spot={scene} />
         </RouteMapButton>

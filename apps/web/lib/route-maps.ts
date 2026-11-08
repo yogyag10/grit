@@ -1,0 +1,2 @@
+/** Static OpenStreetMap snapshots behind the small trail maps: zoom, and the world-pixel position of the image's top-left corner. Tiles © OpenStreetMap contributors. */
+export const ROUTE_MAPS: Record<string, { z: number; x: number; y: number; size: number }> = {"wreck-beach":{"z":13,"x":330438.64,"y":717668.71,"size":256},"pacific-spirit":{"z":12,"x":165268.68,"y":358864.08,"size":256},"spanish-banks":{"z":12,"x":165278.62,"y":358750.56,"size":256},"rose-garden":{"z":13,"x":330459.41,"y":717743.31,"size":256}};

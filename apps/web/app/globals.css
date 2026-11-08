@@ -33,7 +33,3 @@ body {
     transform: none;
   }
 }
-
-.grit-tiles {
-  filter: grayscale(1) contrast(0.55) brightness(1.3);
-}

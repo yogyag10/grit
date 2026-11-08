@@ -1,20 +1,17 @@
+import { ROUTE_MAPS } from "@/lib/route-maps";
 import { ROUTES } from "@/lib/routes";
 import { SPOTS, type SceneKind } from "@/lib/spots";
 
-/** SVG path data for the route, scaled to fit a size x size box with padding, keeping its real proportions. */
-function routePath(segments: [number, number][][], size: number, pad: number): string {
-  const pts = segments.flat();
-  const lat0 = pts.reduce((a, p) => a + p[0], 0) / pts.length;
-  const kx = Math.cos((lat0 * Math.PI) / 180);
-  const xs = pts.map((p) => p[1] * kx);
-  const ys = pts.map((p) => -p[0]);
-  const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
-  const scale = (size - 2 * pad) / Math.max(maxX - minX, maxY - minY);
-  const ox = (size - (maxX - minX) * scale) / 2;
-  const oy = (size - (maxY - minY) * scale) / 2;
-  return segments
-    .map((seg) => seg.map((p, i) => `${i ? "L" : "M"}${((p[1] * kx - minX) * scale + ox).toFixed(1)} ${((-p[0] - minY) * scale + oy).toFixed(1)}`).join(""))
-    .join("");
+/** Route as SVG path data in the snapshot's own pixel space (Web Mercator at the snapshot's zoom). */
+function routePath(spot: SceneKind): string {
+  const m = ROUTE_MAPS[spot];
+  const n = 256 * 2 ** m.z;
+  const project = ([lat, lon]: [number, number]) => {
+    const x = ((lon + 180) / 360) * n - m.x;
+    const y = ((1 - Math.log(Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)) / Math.PI) / 2) * n - m.y;
+    return `${x.toFixed(1)} ${y.toFixed(1)}`;
+  };
+  return ROUTES[spot].segments.map((seg) => seg.map((p, i) => `${i ? "L" : "M"}${project(p)}`).join("")).join("");
 }
 
 /** A photo of a UBC-area run spot. Credits are in public/spots/CREDITS.md. */
@@ -29,12 +26,15 @@ export function Scene({ kind, className = "" }: { kind: SceneKind; className?: s
 /** Small map thumbnail. With a spot, it draws that spot's recommended trail, the same one the big map shows. */
 export function MapInset({ size = 80, className = "", spot }: { size?: number; className?: string; spot?: SceneKind }) {
   if (spot) {
-    const d = routePath(ROUTES[spot].segments, size, 12);
+    const d = routePath(spot);
+    const px = ROUTE_MAPS[spot].size;
     return (
-      <div className={`overflow-hidden rounded-2xl border-[3px] border-white bg-[#eeefe9] ${className}`} style={{ width: size, height: size }}>
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={`Trail map: ${ROUTES[spot].trail}`}>
-          <path d={d} fill="none" stroke="#ffffff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={d} fill="none" stroke="#2f8f2a" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+      <div className={`relative overflow-hidden rounded-2xl border-[3px] border-white bg-[#e9ecdf] ${className}`} style={{ width: size, height: size }}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- fixed local map snapshot */}
+        <img src={`/spots/maps/${spot}.png`} alt="" aria-hidden="true" className="absolute inset-0 size-full object-cover" />
+        <svg viewBox={`0 0 ${px} ${px}`} className="absolute inset-0 size-full" role="img" aria-label={`Trail map: ${ROUTES[spot].trail}`}>
+          <path d={d} fill="none" stroke="#ffffff" strokeWidth="17" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={d} fill="none" stroke="#2f8f2a" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
     );

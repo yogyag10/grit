@@ -22,15 +22,11 @@ export function RouteMapButton({ spot, className = "", children }: { spot: Scene
     void import("leaflet").then((L) => {
       if (cancelled) return;
       map = L.map(el, { scrollWheelZoom: false });
-      // OpenStreetMap tiles, muted to pale grey (see .grit-tiles) so the trail is what stands out, like the thumbnail.
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 17,
-        className: "grit-tiles",
+        maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
-      const casing = { color: "#ffffff", weight: 10, opacity: 1, lineCap: "round", lineJoin: "round" } as const;
-      route.segments.forEach((s) => L.polyline(s, casing).addTo(map!));
-      const lines = route.segments.map((s) => L.polyline(s, { color: "#2f8f2a", weight: 5, opacity: 1, lineCap: "round", lineJoin: "round" }).addTo(map!));
+      const lines = route.segments.map((s) => L.polyline(s, { color: "#2f8f2a", weight: 6, opacity: 0.95 }).addTo(map!));
       map.fitBounds(L.featureGroup(lines).getBounds(), { padding: [24, 24] });
     });
     return () => {
@@ -76,7 +72,7 @@ export function RouteMapButton({ spot, className = "", children }: { spot: Scene
             <X className="size-5" aria-hidden="true" />
           </button>
         </div>
-        <div ref={mapEl} role="region" aria-label={`Map of the ${route.trail}`} className="h-[360px] w-full bg-[#eeefe9]" />
+        <div ref={mapEl} role="region" aria-label={`Map of the ${route.trail}`} className="h-[360px] w-full bg-[#e6e9e0]" />
         <p className="p-4 text-xs text-muted">
           A suggested route from OpenStreetMap trail data, not a measured pact course. Any run you do still counts from your Strava GPS. Check conditions first; some
           trails include stairs.
