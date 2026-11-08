@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { GPS_RULES } from "@movepact/core";
+import { getUser } from "@/lib/supabase/server";
 
 const STEPS = [
   {
@@ -15,7 +17,8 @@ const STEPS = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const user = await getUser();
   const vehicleKmh = Math.round(GPS_RULES.vehicleSpeedMps * 3.6);
 
   return (
@@ -23,6 +26,12 @@ export default function Home() {
       <header className="flex flex-col gap-3">
         <h1 className="text-4xl font-bold tracking-tight">MovePact</h1>
         <p className="text-lg text-slate-700">Put your money where your movement is.</p>
+        <Link
+          href={user ? "/me" : "/signin"}
+          className="mt-2 self-start rounded-lg bg-emerald-700 px-5 py-2.5 font-medium text-white hover:bg-emerald-800"
+        >
+          {user ? "My pacts" : "Sign in with your UBC email"}
+        </Link>
       </header>
 
       <section aria-labelledby="how" className="flex flex-col gap-4">
