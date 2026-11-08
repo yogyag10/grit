@@ -4,6 +4,8 @@ import { NextResponse, type NextRequest } from "next/server";
 /** Refreshes the Supabase session cookie on every page and API request. No redirects here. */
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
+  // This operator endpoint has independent bearer authentication and must work without a login.
+  if (request.nextUrl.pathname === "/api/admin/reset") return response;
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",

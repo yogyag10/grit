@@ -221,6 +221,9 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
+            "reset_app_data":
+{ Args: { "p_demo": Json,"p_keep_accounts"?: boolean }; Returns: undefined
+                           },
             "create_settlement":
 { Args: { "p_pact_id": string,"p_payouts": Json,"p_plan": Json }; Returns: boolean
                            },

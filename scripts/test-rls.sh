@@ -17,3 +17,4 @@ run_sql() { docker exec -i "$NAME" psql -U postgres -v ON_ERROR_STOP=1 -q "$@"; 
 run_sql < "$ROOT/supabase/tests/stub_supabase.sql"
 for f in "$ROOT"/supabase/migrations/*.sql; do run_sql < "$f"; done
 run_sql < "$ROOT/supabase/tests/rls.test.sql"
+run_sql < "$ROOT/supabase/tests/reset.test.sql"

@@ -6,6 +6,7 @@ import { Scene } from "@/components/ui/art";
 import { ButtonLink } from "@/components/ui/Button";
 import { Badge, EmptyState } from "@/components/ui/primitives";
 import { km, solShort, when } from "@/lib/format";
+import { DEMO_PACT_ID, isRetiredSeedPact } from "@/lib/demo-pact";
 import { pactStatus, sceneFor } from "@/lib/spots";
 import { createSupabaseServer, getUser } from "@/lib/supabase/server";
 
@@ -26,7 +27,8 @@ export default async function MyPactsPage() {
     supabase.from("deposits").select("pact_id"),
   ]);
   const deposited = new Set((deposits ?? []).map((d) => d.pact_id));
-  const entries = (rows ?? []).flatMap((r) => (r.pacts ? [{ pact: r.pacts, mode: r.mode }] : []));
+  const entries = (rows ?? []).flatMap(r => r.pacts && !isRetiredSeedPact(r.pacts.id)
+    ? [{ pact: r.pacts.id === DEMO_PACT_ID ? { ...r.pacts, title: "Demo" } : r.pacts, mode: r.mode }] : []);
   const now = new Date();
 
   return (

@@ -67,9 +67,31 @@ If a run fails after sending a transfer, check its saved signatures before runni
 
 ## Status
 
+`pnpm seed` creates one **Demo** pact (3 km, 0.1 test SOL, open for 48 hours). `pnpm seed --force`
+reopens its window. The retired fixed seed variants are omitted from pact lists.
+
 Demo pacts (`is_demo=true`) include a stable crowd of 20–30 labelled sample pledges on
 Explore, pact details, and the leaderboard. These are display fixtures, so existing demo
 pacts pick them up on deployment without reseeding. Real app memberships are added to the
 pledged count; pool receipts and settlement use only real memberships and verified deposits.
 
 See `CLAUDE.md` for the project requirements and build order.
+
+## Operator reset endpoint
+
+Apply `supabase/migrations/0003_admin_reset.sql` once, then set a separate `ADMIN_RESET_SECRET`
+in `apps/web/.env.local` and the deployment environment. An empty secret disables the endpoint.
+
+```sh
+curl -X POST "$APP_URL/api/admin/reset" \
+  -H "Authorization: Bearer $ADMIN_RESET_SECRET"
+```
+
+This erases all app data and sign-in accounts, then creates one fresh **Demo** with its sample
+pledges. To keep sign-ins, profiles, wallet links, and Strava connections, add
+`-H 'Content-Type: application/json' --data '{"keepAccounts":true}'`.
+
+The database schema, RLS, migrations, project settings, and treasury keys stay in place.
+Solana transactions already sent cannot be erased or reversed by a database reset. Browser
+wallet data stays in the browser. Stop scheduled settlement runs while resetting.
+Account deletion uses Supabase's admin API; a partial failure returns an error and can be retried.

@@ -4,6 +4,7 @@ import { GritLogo } from "@/components/brand/GritLogo";
 import { AppShell } from "@/components/ui/AppShell";
 import { Badge, Card, EmptyState } from "@/components/ui/primitives";
 import { km, solShort, when } from "@/lib/format";
+import { DEMO_PACT_ID, isRetiredSeedPact } from "@/lib/demo-pact";
 import { outcomeSentence } from "@/lib/receipt";
 import type { StoredPlan } from "@/lib/settlement";
 import { createSupabaseAdmin } from "@/lib/supabase/server";
@@ -20,7 +21,8 @@ export default async function ResultsPage() {
     .order("created_at", { ascending: false })
     .limit(50);
 
-  const ids = (data ?? []).map((s) => s.pact_id);
+  const visible = (data ?? []).filter(s => !isRetiredSeedPact(s.pact_id));
+  const ids = visible.map((s) => s.pact_id);
   const { data: payouts } = ids.length
     ? await admin.from("payouts").select("pact_id, kind, lamports, status").in("pact_id", ids).eq("status", "confirmed")
     : { data: [] };
@@ -40,11 +42,11 @@ export default async function ResultsPage() {
           </p>
         </div>
 
-        {(data ?? []).length === 0 ? (
+        {visible.length === 0 ? (
           <EmptyState icon={<Trophy className="size-8" />} text="No public pacts have settled yet." />
         ) : (
           <ul className="flex flex-col gap-3">
-            {(data ?? []).map((s) => {
+            {visible.map((s) => {
               const plan = s.plan as unknown as StoredPlan;
               const p = s.pacts;
               return (
@@ -55,7 +57,7 @@ export default async function ResultsPage() {
                   >
                     <Card className="flex flex-col gap-2 p-5 transition hover:bg-line motion-reduce:transition-none">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-xl font-bold">{p.title}</p>
+                        <p className="text-xl font-bold">{s.pact_id === DEMO_PACT_ID ? "Demo" : p.title}</p>
                         {p.is_demo && <Badge tone="demo">Demo pact</Badge>}
                       </div>
                       <p className="text-sm text-muted">

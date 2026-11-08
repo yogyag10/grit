@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildProgressView, type ProgressView } from "./sync";
 import type { Database } from "./supabase/database.types";
+import { DEMO_PACT_ID } from "./demo-pact";
 
 type Admin = SupabaseClient<Database>;
 export type Pact = Database["public"]["Tables"]["pacts"]["Row"];
@@ -12,7 +13,7 @@ export async function loadPact(admin: Admin, pactId: string): Promise<Pact | nul
   if (!UUID.test(pactId)) return null;
   const { data, error } = await admin.from("pacts").select("*").eq("id", pactId).maybeSingle();
   if (error) throw new Error(`loading pact failed: ${error.message}`);
-  return data;
+  return data?.id === DEMO_PACT_ID ? { ...data, title: "Demo" } : data;
 }
 
 /** Active membership (not left), or null. */
