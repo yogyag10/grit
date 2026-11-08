@@ -8,7 +8,9 @@ import { Badge, Card, EmptyState } from "@/components/ui/primitives";
 import { km, shortDate, solCad, weekday } from "@/lib/format";
 import { sceneFor } from "@/lib/spots";
 import { weeklyRuns, weeklyStreak } from "@/lib/streak";
-import { createSupabaseServer, getUser } from "@/lib/supabase/server";
+import { DEMO_PACT_ID } from "@/lib/demo-pact";
+import { demoActivityFor, demoMemberIndex } from "@/lib/demo-activity";
+import { createSupabaseAdmin, createSupabaseServer, getUser } from "@/lib/supabase/server";
 import { buildProgressView, type ActivityView } from "@/lib/sync";
 
 export const dynamic = "force-dynamic";
@@ -43,7 +45,6 @@ export default async function ActivityPage() {
       }
     }
   }
-  recent.sort((a, b) => b.startDate.localeCompare(a.startDate));
 
   const settledPacts = [...new Set((payouts ?? []).map((p) => p.pact_id))];
   const kept = settledPacts.filter((id) => cleared.has(id)).length;
@@ -51,21 +52,39 @@ export default async function ActivityPage() {
   const earned = (payouts ?? [])
     .filter((p) => p.kind === "payout" && p.status === "confirmed")
     .reduce((sum, p) => sum + Math.max(0, Number(p.lamports) - (stakeOf.get(p.pact_id) ?? 0)), 0);
-  const runDates = [...countedDates.values()];
+  // Members of the demo pact see a fixed Activity page for the demo video (labelled below).
+  const { data: demoMembers } = await createSupabaseAdmin()
+    .from("memberships")
+    .select("user_id, joined_at")
+    .eq("pact_id", DEMO_PACT_ID)
+    .eq("mode", "staked")
+    .is("left_at", null);
+  const demoIndex = demoMemberIndex(demoMembers ?? [], user.id);
+  const demo = demoIndex >= 0 ? demoActivityFor(demoIndex) : null;
+
+  const shownRecent = demo ? demo.recent : recent;
+  shownRecent.sort((a, b) => b.startDate.localeCompare(a.startDate));
+
+  const runDates = demo ? demo.runDates : [...countedDates.values()];
   const weeks = weeklyRuns(runDates);
   const streak = weeklyStreak(runDates);
-  const totalMeters = [...counted.values()].reduce((a, b) => a + b, 0);
+  const totalMeters = demo ? demo.countedMeters : [...counted.values()].reduce((a, b) => a + b, 0);
 
   return (
     <AppShell>
       <PageHeader title="Your activity" />
+      {demo && (
+        <div className="px-4 pt-3">
+          <Badge tone="demo">Demo data</Badge>
+        </div>
+      )}
       <div className="flex flex-col gap-4 px-4 pt-4">
         <div className="grid grid-cols-2 gap-3">
           <Card className="flex flex-col gap-2 p-5">
             <p className="text-lg font-semibold">All pacts</p>
             <div className="flex gap-4 tabular-nums">
               <div>
-                <p className="text-3xl font-extrabold leading-none">{counted.size}</p>
+                <p className="text-3xl font-extrabold leading-none">{demo ? demo.countedRuns : counted.size}</p>
                 <p className="text-sm text-muted">Runs</p>
               </div>
               <div>
@@ -77,7 +96,7 @@ export default async function ActivityPage() {
           <Card className="flex flex-col gap-2 p-5">
             <p className="text-lg font-semibold">Pacts kept</p>
             <p className="text-3xl font-extrabold leading-none tabular-nums">
-              {kept} of {settledPacts.length}
+              {demo ? demo.kept : kept} of {demo ? demo.total : settledPacts.length}
             </p>
             <p className="text-sm text-muted">+{solCad(earned)} earned (devnet)</p>
           </Card>
@@ -114,7 +133,7 @@ export default async function ActivityPage() {
         </Card>
 
         <h2 className="pt-2 text-xl font-bold">Recent activities</h2>
-        {recent.length === 0 ? (
+        {shownRecent.length === 0 ? (
           <EmptyState
             icon={<TrendingUp className="size-8" />}
             text="Nothing checked yet. Sync from a pact page after your next activity."
@@ -126,7 +145,7 @@ export default async function ActivityPage() {
           />
         ) : (
           <ul className="flex flex-col gap-3">
-            {recent.slice(0, 12).map((a, i) => {
+            {shownRecent.slice(0, 12).map((a, i) => {
               const ok = a.counted && a.verdict === "accepted";
               return (
                 <li key={`${a.id}-${i}`} className="flex items-start gap-3.5 rounded-[18px] bg-card p-3.5">

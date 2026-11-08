@@ -2,6 +2,7 @@ import { Check } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { GritLogo } from "@/components/brand/GritLogo";
+import { DisconnectStrava } from "@/components/DisconnectStrava";
 import { WalletLinker } from "@/components/WalletLinker";
 import { RouteMap } from "@/components/ui/art";
 import { buttonClass } from "@/components/ui/Button";
@@ -26,7 +27,7 @@ const REASONS = [
     title: "Your activities stay private",
     body: "Others only see whether you cleared the goal, unless you choose to show your progress.",
   },
-  { title: "You stay in control", body: "You can remove Grit's access any time in your Strava settings." },
+  { title: "You stay in control", body: "Disconnect Strava here any time, or remove Grit in your Strava settings." },
 ];
 
 export default async function OnboardingPage({ searchParams }: { searchParams: Promise<{ strava?: string }> }) {
@@ -88,9 +89,12 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
           {stravaConnected ? "Reconnect Strava" : "Connect Strava"}
         </a>
         {stravaConnected && (
-          <p className="flex items-center justify-center gap-2 text-oath">
-            <Check className="size-5" aria-hidden="true" /> Strava connected
-          </p>
+          <>
+            <p className="flex items-center justify-center gap-2 text-oath">
+              <Check className="size-5" aria-hidden="true" /> Strava connected
+            </p>
+            <DisconnectStrava />
+          </>
         )}
 
         <Card className="flex flex-col gap-2">
