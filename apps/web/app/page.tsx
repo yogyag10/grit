@@ -1,4 +1,4 @@
-import { GPS_RULES } from "@movepact/core";
+import { GPS_RULES } from "@oathmile/core";
 
 const STEPS = [
   {
@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-10 px-4 py-12">
       <header className="flex flex-col gap-3">
-        <h1 className="text-4xl font-bold tracking-tight">MovePact</h1>
+        <h1 className="text-4xl font-bold tracking-tight">Oathmile</h1>
         <p className="text-lg text-slate-700">Put your money where your movement is.</p>
       </header>
 

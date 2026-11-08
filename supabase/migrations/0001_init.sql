@@ -1,4 +1,4 @@
--- MovePact schema. All writes go through server routes using the service role.
+-- Oathmile schema. All writes go through server routes using the service role.
 -- Clients (anon / authenticated) only ever SELECT, and only their own rows.
 
 create table public.profiles (

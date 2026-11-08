@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@movepact/core"],
+  transpilePackages: ["@oathmile/core"],
 };
 
 export default nextConfig;

@@ -1,6 +1,6 @@
-# @movepact/core
+# @oathmile/core
 
-Pure TypeScript logic for MovePact: deterministic GPS checks, progress, and settlement math.
+Pure TypeScript logic for Oathmile: deterministic GPS checks, progress, and settlement math.
 No network, no database, no UI. 28 unit tests.
 
 | File | What it does | Who uses it |
@@ -18,11 +18,11 @@ Copy this folder to `packages/core/`, then:
 
 ```sh
 pnpm install
-pnpm --filter @movepact/core test
+pnpm --filter @oathmile/core test
 ```
 
-In the Next.js app: add `"@movepact/core": "workspace:*"` to its dependencies and
-`transpilePackages: ["@movepact/core"]` to `next.config`.
+In the Next.js app: add `"@oathmile/core": "workspace:*"` to its dependencies and
+`transpilePackages: ["@oathmile/core"]` to `next.config`.
 
 ## How the app should call it
 

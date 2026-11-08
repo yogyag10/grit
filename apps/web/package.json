@@ -1,5 +1,5 @@
 {
-  "name": "@movepact/web",
+  "name": "@oathmile/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
     "test": "echo \"no web tests yet\""
   },
   "dependencies": {
-    "@movepact/core": "workspace:*",
+    "@oathmile/core": "workspace:*",
     "next": "16.4.5",
     "react": "19.3.1",
     "react-dom": "19.3.1"

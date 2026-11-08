@@ -1,4 +1,4 @@
-# MovePact — HackCamp 2026
+# Oathmile — HackCamp 2026
 
 ## Goal
 

@@ -1,4 +1,4 @@
-# MovePact
+# Oathmile
 
 Put your money where your movement is. Verified UBC students join a pact, put in an equal commitment deposit (devnet SOL), and run toward a goal. Everyone who reaches it splits the pool. If everyone or no one makes it, everyone gets their deposit back. No platform fee.
 
@@ -19,7 +19,7 @@ Needs Node 22+ and pnpm 11.
 ```sh
 pnpm install
 cp apps/web/.env.example apps/web/.env.local   # then fill in the values
-pnpm --filter @movepact/web dev                # http://localhost:3000
+pnpm --filter @oathmile/web dev                # http://localhost:3000
 ```
 
 Checks:
@@ -27,7 +27,7 @@ Checks:
 ```sh
 pnpm typecheck
 pnpm test
-pnpm --filter @movepact/web build
+pnpm --filter @oathmile/web build
 ```
 
 ## Treasury keypair (devnet)

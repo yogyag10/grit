@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MovePact",
+  title: "Oathmile",
   description: "Put your money where your movement is. Commit with your UBC community and get your deposit back.",
 };
 
