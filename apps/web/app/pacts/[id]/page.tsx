@@ -2,6 +2,7 @@ import { Check, Lock } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { DepositButton } from "@/components/DepositButton";
+import { DemoPledges } from "@/components/DemoPledges";
 import { AppShell } from "@/components/ui/AppShell";
 import { Scene } from "@/components/ui/art";
 import { ButtonLink } from "@/components/ui/Button";
@@ -97,6 +98,7 @@ export default async function PactPage({
           {pact.visibility === "invite" ? "Invite only" : "Public"}
         </p>
         {pact.cancelled_at && <Note tone="warn">This pact was cancelled.</Note>}
+        <DemoPledges pact={pact} actualMembers={stats.members} />
 
         {plan && membership && (
           <ResultCard

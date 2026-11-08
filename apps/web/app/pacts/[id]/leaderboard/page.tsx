@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { AppShell } from "@/components/ui/AppShell";
+import { DemoPledges } from "@/components/DemoPledges";
 import { ButtonLink } from "@/components/ui/Button";
 import { PactHero } from "@/components/ui/PactHero";
 import { Badge, Card, ProgressBar, StatTile } from "@/components/ui/primitives";
@@ -53,6 +54,7 @@ export default async function LeaderboardPage({
         height={260}
       />
       <div className="flex flex-col gap-4 px-4 pb-10 pt-3">
+        <DemoPledges pact={pact} actualMembers={stats.members} expanded />
         <div className="grid grid-cols-3 gap-3">
           <StatTile label="Cleared" value={`${stats.cleared} of ${stats.funded}`} />
           <StatTile label="Pool" value={solShort(stats.poolLamports)} />

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { AppShell, PageHeader } from "@/components/ui/AppShell";
 import { km, solShort, when } from "@/lib/format";
+import { demoPledges } from "@/lib/demo-pledges";
 import { pactLengthDays, pactStatus, sceneFor } from "@/lib/spots";
 import type { StoredPlan } from "@/lib/settlement";
 import { createSupabaseAdmin, createSupabaseServer, getUser } from "@/lib/supabase/server";
@@ -41,15 +42,16 @@ export default async function ExplorePage() {
   const cards: (ExploreCard & { sort: number })[] = list.map((p) => {
     const status = pactStatus(p, now);
     const count = runners.get(p.id) ?? 0;
+    const sampleCount = demoPledges(p).length;
     const plan = plans.get(p.id);
     const joinOpen = now.getTime() < Date.parse(p.funding_cutoff);
     const joined = mine.has(p.id);
     const lines = [
       `${km(p.goal_meters, 0)} in ${pactLengthDays(p)} days · ${solShort(Number(p.stake_lamports))} · ${
-        status === "upcoming" ? `${count} joined so far` : `${count} ${count === 1 ? "runner" : "runners"}`
+        sampleCount ? `${count + sampleCount} pledged` : status === "upcoming" ? `${count} joined so far` : `${count} ${count === 1 ? "runner" : "runners"}`
       }`,
     ];
-    if (p.is_demo) lines.push("Demo pact");
+    if (p.is_demo) lines.push(`Demo pact · ${sampleCount} sample pledges`);
 
     let card: Omit<ExploreCard, "id" | "title" | "scene" | "status" | "pill" | "lines" | "searchText">;
     let pill: string;

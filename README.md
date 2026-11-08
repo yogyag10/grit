@@ -67,4 +67,9 @@ If a run fails after sending a transfer, check its saved signatures before runni
 
 ## Status
 
-Phase 0 skeleton. See `CLAUDE.md` for the build order.
+Demo pacts (`is_demo=true`) include a stable crowd of 20–30 labelled sample pledges on
+Explore, pact details, and the leaderboard. These are display fixtures, so existing demo
+pacts pick them up on deployment without reseeding. Real app memberships are added to the
+pledged count; pool receipts and settlement use only real memberships and verified deposits.
+
+See `CLAUDE.md` for the project requirements and build order.
