@@ -32,6 +32,9 @@ export default async function Home() {
         >
           {user ? "My pacts" : "Sign in with your UBC email"}
         </Link>
+        <Link href="/results" className="text-sm text-slate-600 underline">
+          See results from past pacts
+        </Link>
       </header>
 
       <section aria-labelledby="how" className="flex flex-col gap-4">

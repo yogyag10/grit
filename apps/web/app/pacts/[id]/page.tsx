@@ -5,6 +5,8 @@ import { canView, loadMembership, loadMyProgress, loadPact } from "@/lib/pacts";
 import { createSupabaseAdmin, getUser } from "@/lib/supabase/server";
 import { memberWindow, syncPhase } from "@/lib/sync";
 import { DepositButton } from "@/components/DepositButton";
+import { outcomeSentence } from "@/lib/receipt";
+import type { StoredPlan } from "@/lib/settlement";
 import { explorerAddress, explorerTx, treasuryAddress } from "@/lib/solana";
 import { JoinButton, SyncButton } from "./PactActions";
 
@@ -33,6 +35,18 @@ export default async function PactPage({
     ? await admin.from("deposits").select("signature, confirmed_at").eq("pact_id", pact.id).eq("user_id", user.id).maybeSingle()
     : { data: null };
   const treasury = treasuryAddress();
+  const { data: settlement } = await admin.from("settlements").select("plan, status").eq("pact_id", pact.id).maybeSingle();
+  const plan = (settlement?.plan ?? null) as StoredPlan | null;
+  const { data: myPayout } =
+    settlement && membership
+      ? await admin.from("payouts").select("kind, lamports, status, signature").eq("pact_id", pact.id).eq("participant_id", user.id).maybeSingle()
+      : { data: null };
+  const PAYOUT_TEXT: Record<string, string> = {
+    payout: "You reached the goal. Your deposit plus your share of the pool",
+    refund: "Your deposit back",
+    return_unfunded: "Your late deposit returned",
+    leave_refund: "Your deposit back",
+  };
   const now = new Date();
   const joinOpen = !pact.cancelled_at && now.getTime() < Date.parse(pact.funding_cutoff);
   const window = membership ? memberWindow(pact, membership.joined_at) : null;
@@ -52,6 +66,35 @@ export default async function PactPage({
         <h1 className="text-2xl font-bold">{pact.title}</h1>
         {pact.cancelled_at && <p className="mt-2 text-sm font-medium text-red-700">This pact was cancelled.</p>}
       </section>
+
+      {plan && (
+        <section aria-labelledby="results" className="flex flex-col gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+          <h2 id="results" className="font-semibold text-emerald-950">
+            Results
+          </h2>
+          <p className="text-sm text-emerald-950">{outcomeSentence({ outcome: plan.outcome, funded: plan.fundedIds.length, cleared: plan.qualifierIds.length })}</p>
+          {myPayout ? (
+            <p className="text-sm text-emerald-950">
+              {PAYOUT_TEXT[myPayout.kind] ?? "Your payout"}: <strong>{sol(myPayout.lamports)}</strong>
+              {myPayout.status === "confirmed" && myPayout.signature ? (
+                <>
+                  {" · "}
+                  <a href={explorerTx(myPayout.signature)} target="_blank" rel="noreferrer" className="underline">
+                    sent to your wallet
+                  </a>
+                </>
+              ) : (
+                " · sending to your wallet"
+              )}
+            </p>
+          ) : (
+            plan.outcome === "split" && plan.fundedIds.includes(user.id) && <p className="text-sm text-emerald-950">You didn&apos;t reach the goal this time, so your deposit went to the members who did.</p>
+          )}
+          <Link href={`/pacts/${pact.id}/receipt${code ? `?code=${code}` : ""}`} className="text-sm font-medium text-emerald-900 underline">
+            See the pool receipt
+          </Link>
+        </section>
+      )}
 
       <section aria-labelledby="rules" className="rounded-xl border border-slate-200 p-4">
         <h2 id="rules" className="font-semibold">

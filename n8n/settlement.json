@@ -1,0 +1,62 @@
+{
+  "name": "MovePact settlement",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "6b0b7a1e-2f0e-4a51-9a1e-000000000001",
+      "name": "Run now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "minutes", "minutesInterval": 15 }]
+        }
+      },
+      "id": "6b0b7a1e-2f0e-4a51-9a1e-000000000002",
+      "name": "Every 15 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://YOUR-APP.vercel.app/api/settlement/run",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "id": "6b0b7a1e-2f0e-4a51-9a1e-000000000003",
+      "name": "Settle due pacts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 100],
+      "credentials": {
+        "httpHeaderAuth": { "id": "", "name": "MovePact settlement secret" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregates only: the app never sends names, wallets or fitness data here.\nconst r = $input.first().json;\nconst lines = (r.pacts ?? []).map((p) =>\n  `${p.title}: ${p.cleared} of ${p.funded} made it, ${p.paidOutSol} SOL paid out, ${p.refundedSol} SOL refunded, 0 SOL in fees` +\n  (p.status === 'done' ? '' : ' (payouts still sending)') +\n  `. Receipt: ${p.receiptUrl}`\n);\nreturn [{ json: {\n  newlySettled: r.newlySettled ?? 0,\n  summary: lines.length ? lines.join('\\n') : 'Nothing due for settlement.',\n  pacts: r.pacts ?? []\n} }];"
+      },
+      "id": "6b0b7a1e-2f0e-4a51-9a1e-000000000004",
+      "name": "Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 100]
+    }
+  ],
+  "connections": {
+    "Run now": { "main": [[{ "node": "Settle due pacts", "type": "main", "index": 0 }]] },
+    "Every 15 minutes": { "main": [[{ "node": "Settle due pacts", "type": "main", "index": 0 }]] },
+    "Settle due pacts": { "main": [[{ "node": "Summary", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "active": false,
+  "pinData": {}
+}

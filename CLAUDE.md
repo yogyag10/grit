@@ -60,7 +60,7 @@ or "win money".
 | Overall | Working end-to-end demo, clear problem, real user research |
 | Community Impact (our one superlative) | Opt in + impact statement on real survey numbers |
 | Best Use of Solana | Real devnet deposit/payout signatures + the public Pool Receipt page |
-| Best Use of n8n | Real n8n execution that settles pacts and posts a Discord summary |
+| Best Use of n8n | Real n8n execution that settles pacts; results appear on the public `/results` page |
 
 ## Feature scope in tiers
 
@@ -78,7 +78,7 @@ left. Nothing new in the final 4 hours.**
 | Nobody clears | Renno keeps it | **Everyone refunded** |
 | Payouts | Points that expire | **Straight to your wallet** |
 | UBC email gate | No | Verified `@student.ubc.ca` only |
-| Settlement trigger | Automatic | n8n workflow + Discord summary |
+| Settlement trigger | Automatic | n8n workflow; settled public pacts published on `/results` |
 
 ### P1: makes it feel like a real product (do after P0 works)
 
@@ -265,8 +265,9 @@ Unit-test with a mocked RPC: a timeout followed by a retry must never pay twice.
 
 1. Manual Trigger, plus a Schedule Trigger every 15 min.
 2. HTTP Request: `POST {APP_URL}/api/settlement/run` with the Bearer secret.
-3. IF anything settled: post to a Discord webhook, e.g. "Pact settled: 3 of 5 made it, 0.4 SOL paid out,
-   $0 in fees", with a Pool Receipt link.
+3. A summary node that formats the aggregate, e.g. "Pact settled: 3 of 5 made it, 0.4 SOL paid out,
+   $0 in fees", for the execution log. No Discord (operator decision, Nov 7): results are published on
+   the website instead, at `/results` (settled public pacts) and each pact's public Pool Receipt.
 
 n8n never receives fitness data. Give the operator import steps.
 
@@ -280,7 +281,7 @@ n8n never receives fitness data. Give the operator import steps.
 - **Ended pacts A, B, C** (rehearsal, judging, backup) from `scripts/seed-demo.ts`. Teammates make
   **real** devnet deposits tonight and sync **real** activities, aiming for mixed outcomes. On stage:
   1. Trigger n8n.
-  2. Show the payouts landing and the Discord summary.
+  2. Show the payouts landing and the pact appearing on `/results`.
   3. Open the Pool Receipt to show fee $0 and payouts equal to the pool.
 - Record a backup video once it works.
 
@@ -298,7 +299,7 @@ n8n never receives fitness data. Give the operator import steps.
 
 ## Privacy and honesty rules
 
-- Strava data never goes to n8n, AI services, public views, Discord or on-chain. Tokens stay server-only.
+- Strava data never goes to n8n, AI services, public views or on-chain. Tokens stay server-only.
 - Standings show only "X of N cleared" plus opted-in names and percentages.
 - Public transfers can reveal who got paid. Don't promise more privacy than that.
 - GPS checks are eligibility checks, not proof of cheating. Known limits: slow cycling passes, and
@@ -320,8 +321,7 @@ Send these in one batch in your first reply, each with:
 3. **Vercel**: link the repo and add env vars.
 4. **Solana**: you generate the treasury with `scripts/make-treasury.ts`; the operator funds it at
    faucet.solana.com. Teammates install Phantom on devnet and get devnet SOL.
-5. **n8n Cloud**: import the workflow and set the Bearer secret and Discord webhook.
-6. **Discord**: create a webhook in a team channel.
+5. **n8n Cloud**: import the workflow, set the app URL and the Bearer secret.
 
 Env names for `.env.example`:
 - Supabase: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
@@ -341,7 +341,7 @@ At the end of each phase: typecheck, run tests, commit, push.
 1. Migrations, RLS, UBC email OTP, profiles. RLS test.
 2. Strava connect, sync with the member window, private progress.
 3. Wallet link, deposit verification.
-4. Settlement endpoint, payouts, idempotency tests, n8n workflow, Discord summary.
+4. Settlement endpoint, payouts, idempotency tests, n8n workflow, public `/results` page.
 5. Seed script, official and demo pacts, results state. **P0 done: rehearse the full demo now.**
 6. P1: Pool Receipt, "Where the money goes", standings, Explore, Create pact, invite links.
 7. P2 if time: practice entry, leave before start, host cancel.

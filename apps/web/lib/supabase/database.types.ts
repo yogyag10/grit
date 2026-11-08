@@ -111,14 +111,14 @@ isOneToOne: false
                   ]
                 },"payouts": {
                   Row: {
-                    "id": number,"kind": string,"lamports": number,"last_valid_block_height": number | null,"pact_id": string,"participant_id": string,"signature": string | null,"status": string,"wallet": string
+                    "claimed_at": string | null,"id": number,"kind": string,"lamports": number,"last_valid_block_height": number | null,"pact_id": string,"participant_id": string,"signature": string | null,"status": string,"wallet": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "id"?: never,"kind": string,"lamports": number,"last_valid_block_height"?: number | null,"pact_id": string,"participant_id": string,"signature"?: string | null,"status"?: string,"wallet": string
+                    "claimed_at"?: string | null,"id"?: never,"kind": string,"lamports": number,"last_valid_block_height"?: number | null,"pact_id": string,"participant_id": string,"signature"?: string | null,"status"?: string,"wallet": string
                   }
                   Update: {
-                    "id"?: never,"kind"?: string,"lamports"?: number,"last_valid_block_height"?: number | null,"pact_id"?: string,"participant_id"?: string,"signature"?: string | null,"status"?: string,"wallet"?: string
+                    "claimed_at"?: string | null,"id"?: never,"kind"?: string,"lamports"?: number,"last_valid_block_height"?: number | null,"pact_id"?: string,"participant_id"?: string,"signature"?: string | null,"status"?: string,"wallet"?: string
                   }
                   Relationships: [
                     {
@@ -221,7 +221,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "is_member":
+            "create_settlement":
+{ Args: { "p_pact_id": string,"p_payouts": Json,"p_plan": Json }; Returns: boolean
+                           },
+"is_member":
 { Args: { "p_pact_id": string }; Returns: boolean
                            }
           }
