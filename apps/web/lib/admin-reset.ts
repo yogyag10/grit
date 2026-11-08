@@ -25,7 +25,7 @@ export async function resetAppDatabase(admin: SupabaseClient<Database>, keepAcco
   if (error) {
     console.error("admin reset RPC failed", error.code);
     throw new Error(error.code === "PGRST202"
-      ? "Apply migration 0003_admin_reset.sql before using reset."
+      ? "Apply migration 0004_admin_reset.sql before using reset."
       : "Database reset failed. Check the server logs before retrying.");
   }
   if (!keepAccounts) {

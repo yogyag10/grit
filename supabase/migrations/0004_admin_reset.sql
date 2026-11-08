@@ -16,7 +16,8 @@ begin
     truncate public.activity_checks, public.sync_errors, public.deposits, public.memberships,
       public.payouts, public.settlements, public.pacts restart identity;
   else
-    truncate public.activity_checks, public.sync_errors, public.deposits, public.memberships,
+    truncate public.messages, public.group_members, public.groups,
+      public.activity_checks, public.sync_errors, public.deposits, public.memberships,
       public.payouts, public.settlements, public.pacts, public.strava_tokens, public.profiles restart identity;
   end if;
 

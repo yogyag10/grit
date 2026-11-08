@@ -79,7 +79,7 @@ See `CLAUDE.md` for the project requirements and build order.
 
 ## Operator reset endpoint
 
-Apply `supabase/migrations/0003_admin_reset.sql` once, then set a separate `ADMIN_RESET_SECRET`
+Apply `supabase/migrations/0004_admin_reset.sql` after the community migration, then set a separate `ADMIN_RESET_SECRET`
 in `apps/web/.env.local` and the deployment environment. An empty secret disables the endpoint.
 
 ```sh
@@ -87,7 +87,7 @@ curl -X POST "$APP_URL/api/admin/reset" \
   -H "Authorization: Bearer $ADMIN_RESET_SECRET"
 ```
 
-This erases all app data and sign-in accounts, then creates one fresh **Demo** with its sample
+This erases all app data (including community groups and chat) and sign-in accounts, then creates one fresh **Demo** with its sample
 pledges. To keep sign-ins, profiles, wallet links, and Strava connections, add
 `-H 'Content-Type: application/json' --data '{"keepAccounts":true}'`.
 

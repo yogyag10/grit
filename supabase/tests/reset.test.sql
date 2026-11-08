@@ -24,6 +24,7 @@ do $$ begin
   assert (select count(*) from public.pacts) = 2, 'failed reset must preserve pacts';
   assert (select count(*) from public.profiles) = 3, 'failed reset must preserve profiles';
   assert (select count(*) from public.strava_tokens) = 2, 'failed reset must preserve tokens';
+  assert (select count(*) from public.groups) = 1, 'failed reset must preserve community groups';
 end $$;
 
 select public.reset_app_data((select data from reset_seed), true);
@@ -34,6 +35,7 @@ do $$ begin
   assert (select count(*) from public.activity_checks) = 0;
   assert (select count(*) from public.profiles) = 3, 'keepAccounts must retain profiles';
   assert (select count(*) from public.strava_tokens) = 2, 'keepAccounts must retain connections';
+  assert (select count(*) from public.groups) = 1, 'pact-only reset must retain community groups';
 end $$;
 
 -- Populate every dependent ledger table so the full wipe exercises foreign keys too.
@@ -59,6 +61,9 @@ do $$ begin
   assert (select count(*) from public.activity_checks) = 0;
   assert (select count(*) from public.sync_errors) = 0;
   assert (select count(*) from public.memberships) = 0;
+  assert (select count(*) from public.messages) = 0;
+  assert (select count(*) from public.group_members) = 0;
+  assert (select count(*) from public.groups) = 0;
   assert (select count(*) from auth.users) = 3, 'Auth deletion is handled by the admin API, not this SQL function';
 end $$;
 \echo 'Reset tests passed'
