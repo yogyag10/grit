@@ -1,8 +1,8 @@
 "use client";
 
-import { Compass, Lock, Search } from "lucide-react";
+import { ArrowUpDown, Check, Compass, Lock, Search } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { buttonClass } from "@/components/ui/Button";
 import { PhotoCard } from "@/components/ui/PhotoCard";
 import { EmptyState } from "@/components/ui/primitives";
@@ -50,6 +50,58 @@ function sortCards(cards: ExploreCard[], key: SortKey): ExploreCard[] {
   return [...cards].sort(by[key]);
 }
 
+function SortMenu({ value, onChange }: { value: SortKey; onChange: (k: SortKey) => void }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: MouseEvent) => !box.current?.contains(e.target as Node) && setOpen(false);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", away);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("mousedown", away);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+
+  return (
+    <div ref={box} className="relative">
+      <button
+        type="button"
+        aria-haspopup="true"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className="flex h-10 items-center gap-2 rounded-full bg-card px-4 text-sm font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oath"
+      >
+        <ArrowUpDown className="size-4 text-muted" aria-hidden="true" />
+        Sort
+      </button>
+      {open && (
+        <ul className="absolute right-0 z-20 mt-2 w-60 overflow-hidden rounded-2xl border border-line bg-card py-1.5 shadow-lg" aria-label="Sort pacts">
+          {SORTS.map((s) => (
+            <li key={s.key}>
+              <button
+                type="button"
+                aria-pressed={value === s.key}
+                onClick={() => {
+                  onChange(s.key);
+                  setOpen(false);
+                }}
+                className="flex h-11 w-full items-center justify-between gap-2 px-4 text-left text-sm font-medium text-ink hover:bg-line focus-visible:bg-line focus-visible:outline-none"
+              >
+                {s.label}
+                {value === s.key && <Check className="size-4 text-oath" aria-hidden="true" />}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export function ExploreList({ cards }: { cards: ExploreCard[] }) {
   const [tab, setTab] = useState<(typeof TABS)[number]["key"]>("all");
   const [query, setQuery] = useState("");
@@ -93,20 +145,7 @@ export function ExploreList({ cards }: { cards: ExploreCard[] }) {
 
       <div className="flex items-center justify-between text-[15px] font-semibold">
         <span>Near UBC</span>
-        <label className="flex items-center gap-2 text-sm font-normal text-muted">
-          <span>Sort</span>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as SortKey)}
-            className="h-10 rounded-full bg-card px-3 text-sm font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oath"
-          >
-            {SORTS.map((s) => (
-              <option key={s.key} value={s.key}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <SortMenu value={sort} onChange={setSort} />
       </div>
 
       {shown.length === 0 ? (

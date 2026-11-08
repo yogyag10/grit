@@ -1,9 +1,9 @@
 import { Check } from "lucide-react";
 import { redirect } from "next/navigation";
+import { QuoteBubble } from "@/components/QuoteBubble";
 import { AppShell, PageHeader } from "@/components/ui/AppShell";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/primitives";
-import { QUOTES } from "@/lib/quotes";
 import { createSupabaseServer, getUser } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -63,18 +63,11 @@ export default async function MePage() {
           My pacts
         </ButtonLink>
 
-        <Card className="flex flex-col gap-4 p-5">
+        <section aria-label="Keep moving" className="flex flex-col gap-3">
           <h2 className="text-lg font-bold">Keep moving</h2>
-          {QUOTES.map((q) => (
-            <figure key={q.by} className="flex flex-col gap-1">
-              <blockquote className="text-base text-ink">&ldquo;{q.text}&rdquo;</blockquote>
-              <figcaption className="text-sm text-muted">
-                {q.by}, {q.source}
-              </figcaption>
-            </figure>
-          ))}
-          <p className="text-xs text-muted">Spot photos are from Wikimedia Commons (CC BY and CC BY-SA). Credits are in the project repo.</p>
-        </Card>
+          <QuoteBubble />
+        </section>
+        <p className="text-xs text-muted">Spot photos are from Wikimedia Commons (CC BY and CC BY-SA). Credits are in the project repo.</p>
 
         <form action="/api/auth/signout" method="post">
           <Button variant="secondary">Sign out</Button>

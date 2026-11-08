@@ -22,3 +22,14 @@ body {
   background: var(--color-canvas);
   color: var(--color-ink);
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
