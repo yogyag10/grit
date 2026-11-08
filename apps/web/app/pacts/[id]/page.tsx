@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { DepositButton } from "@/components/DepositButton";
 import { DemoPledges } from "@/components/DemoPledges";
+import { demoCleared, demoPledges } from "@/lib/demo-pledges";
 import { AppShell } from "@/components/ui/AppShell";
 import { Scene } from "@/components/ui/art";
 import { ButtonLink } from "@/components/ui/Button";
@@ -148,7 +149,7 @@ export default async function PactPage({
         )}
 
         <div className="grid grid-cols-3 gap-3">
-          <StatTile label="Cleared" value={`${stats.cleared} of ${stats.funded}`} />
+          <StatTile label="Cleared" value={`${stats.cleared + demoCleared(pact)} of ${stats.funded + demoPledges(pact).length}`} />
           <StatTile label="Pool" value={<SolValue lamports={stats.poolLamports} />} />
           <StatTile label="Fee" value="0%" accent />
         </div>

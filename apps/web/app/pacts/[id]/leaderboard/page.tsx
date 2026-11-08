@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { AppShell } from "@/components/ui/AppShell";
 import { DemoPledges } from "@/components/DemoPledges";
+import { demoCleared, demoPledges } from "@/lib/demo-pledges";
 import { ButtonLink } from "@/components/ui/Button";
 import { PactHero } from "@/components/ui/PactHero";
 import { Badge, Card, ProgressBar, StatTile } from "@/components/ui/primitives";
@@ -42,6 +43,18 @@ export default async function LeaderboardPage({
   const ended = status === "ended";
   const codeQuery = code ? `?code=${encodeURIComponent(code)}` : "";
   const hidden = standings.hiddenCleared + standings.hiddenNotCleared;
+  const crowd = demoPledges(pact);
+  const rows = [
+    ...standings.rows.map((r) => ({ ...r, demo: false })),
+    ...crowd.map((p) => ({
+      userId: p.id,
+      name: p.name,
+      percent: Math.floor((p.meters / pact.goal_meters) * 100),
+      meters: p.meters,
+      cleared: p.meters >= pact.goal_meters,
+      demo: true,
+    })),
+  ].sort((a, b) => b.meters - a.meters);
 
   return (
     <AppShell nav={false}>
@@ -57,7 +70,7 @@ export default async function LeaderboardPage({
       <div className="flex flex-col gap-4 px-4 pb-10 pt-3">
         <DemoPledges pact={pact} actualMembers={stats.members} expanded />
         <div className="grid grid-cols-3 gap-3">
-          <StatTile label="Cleared" value={`${stats.cleared} of ${stats.funded}`} />
+          <StatTile label="Cleared" value={`${stats.cleared + demoCleared(pact)} of ${stats.funded + crowd.length}`} />
           <StatTile label="Pool" value={<SolValue lamports={stats.poolLamports} />} />
           <StatTile label="Fee" value="0%" accent />
         </div>
@@ -67,11 +80,11 @@ export default async function LeaderboardPage({
           <span className="text-sm text-muted">Goal {km(pact.goal_meters, 0)}</span>
         </div>
 
-        {standings.rows.length === 0 ? (
+        {rows.length === 0 ? (
           <Card className="text-muted">No one has chosen to show their name yet.</Card>
         ) : (
           <ol className="flex flex-col gap-3">
-            {standings.rows.map((row, i) => {
+            {rows.map((row, i) => {
               const me = row.userId === user.id;
               return (
                 <li
@@ -87,7 +100,9 @@ export default async function LeaderboardPage({
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-lg font-semibold">{me ? `${row.name} (you)` : row.name}</p>
+                      <p className="truncate text-lg font-semibold">{me ? `${row.name} (you)` : row.name}
+                        {row.demo && <span className="ml-2 text-xs font-medium text-demo">Demo</span>}
+                      </p>
                       {row.cleared ? <Badge tone="counted">Cleared</Badge> : <Badge tone="neutral">{ended ? "Not cleared" : "In progress"}</Badge>}
                     </div>
                     <div className="mt-1.5 flex items-center gap-3">
@@ -106,7 +121,7 @@ export default async function LeaderboardPage({
         {hidden > 0 && (
           <Card className="flex flex-col gap-1 p-5">
             <p className="text-lg font-semibold">
-              {standings.hiddenCleared} {standings.rows.length > 0 ? "more " : ""}cleared · {standings.hiddenNotCleared}{" "}
+              {standings.hiddenCleared} {rows.length > 0 ? "more " : ""}cleared · {standings.hiddenNotCleared}{" "}
               {ended ? "didn't" : "haven't yet"}
             </p>
             <p className="text-muted">Only people who chose to show their name appear above. No routes or pace are ever shown.</p>
