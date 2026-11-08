@@ -1,5 +1,5 @@
 /**
- * Creates one Demo pact. Real pact, no fake deposits or activities:
+ * Creates one Demo pact (Wreck Beach run). Real pact, no fake deposits or activities:
  * teammates join, deposit real devnet SOL and sync real runs.
  *
  *   pnpm seed                         # uses apps/web/.env.local (local Supabase by default)
@@ -10,7 +10,7 @@
  */
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../lib/supabase/database.types";
-import { demoPactSeed } from "../lib/demo-pact";
+import { DEMO_PACT_TITLE, demoPactSeed } from "../lib/demo-pact";
 
 process.loadEnvFile(process.env.ENV_FILE ?? ".env.local");
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -25,10 +25,10 @@ async function main() {
   const { data: existing, error: readError } = await db.from("pacts").select("id, ends_at").eq("id", p.id).maybeSingle();
   if (readError) throw readError;
   const { error } = existing && !force
-    ? await db.from("pacts").update({ title: "Demo" }).eq("id", p.id)
+    ? await db.from("pacts").update({ title: DEMO_PACT_TITLE }).eq("id", p.id)
     : await db.from("pacts").upsert(p);
   if (error) throw error;
-  console.log(`${existing ? force ? "reset" : "exists" : "created"}   Demo`);
+  console.log(`${existing ? force ? "reset" : "exists" : "created"}   ${DEMO_PACT_TITLE}`);
   console.log(`         ends ${new Date(existing && !force ? existing.ends_at : p.ends_at).toLocaleString("en-CA", { timeZone: "America/Vancouver" })}  ${appUrl}/pacts/${p.id}`);
 }
 

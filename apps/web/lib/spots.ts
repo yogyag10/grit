@@ -1,11 +1,19 @@
-export type SceneKind = "beach" | "forest" | "track";
+export type SceneKind = "wreck-beach" | "pacific-spirit" | "spanish-banks" | "rose-garden";
 export type PactStatus = "upcoming" | "live" | "ended" | "cancelled";
 
-const SCENES: SceneKind[] = ["beach", "forest", "track"];
+export const SPOTS: Record<SceneKind, { name: string; alt: string; match: RegExp }> = {
+  "wreck-beach": { name: "Wreck Beach", alt: "Sunset over the water at Wreck Beach", match: /wreck/i },
+  "pacific-spirit": { name: "Pacific Spirit", alt: "Sunrise over the trees in Pacific Spirit Park", match: /pacific|spirit/i },
+  "spanish-banks": { name: "Spanish Banks", alt: "Spanish Banks beach with the North Shore behind", match: /spanish/i },
+  "rose-garden": { name: "UBC Rose Garden", alt: "UBC Rose Garden with the water and mountains behind", match: /rose/i },
+};
+const SCENES = Object.keys(SPOTS) as SceneKind[];
 const DAY_MS = 86_400_000;
 
-/** Decorative artwork only: a stable pick per pact. It does not claim where the pact runs. */
-export function sceneFor(id: string): SceneKind {
+/** The photo for a pact: its title names a spot, otherwise a stable pick by id (it does not claim where the pact runs). */
+export function sceneFor(id: string, title?: string): SceneKind {
+  const named = title && SCENES.find((k) => SPOTS[k].match.test(title));
+  if (named) return named;
   let hash = 0;
   for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
   return SCENES[hash % SCENES.length];

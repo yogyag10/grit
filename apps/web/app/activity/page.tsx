@@ -1,12 +1,13 @@
-import { TrendingUp } from "lucide-react";
+import { Check, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppShell, PageHeader } from "@/components/ui/AppShell";
 import { Scene } from "@/components/ui/art";
 import { ButtonLink } from "@/components/ui/Button";
 import { Badge, Card, EmptyState } from "@/components/ui/primitives";
-import { km, solShort, weekday } from "@/lib/format";
+import { km, shortDate, solShort, weekday } from "@/lib/format";
 import { sceneFor } from "@/lib/spots";
+import { weeklyRuns, weeklyStreak } from "@/lib/streak";
 import { createSupabaseServer, getUser } from "@/lib/supabase/server";
 import { buildProgressView, type ActivityView } from "@/lib/sync";
 
@@ -28,6 +29,7 @@ export default async function ActivityPage() {
     : { data: [] };
 
   const counted = new Map<string, number>(); // activity id -> counted meters, so one run never counts twice
+  const countedDates = new Map<string, string>(); // activity id -> start date, for the weekly streak
   const recent: (ActivityView & { pact: string })[] = [];
   const cleared = new Set<string>();
   for (const p of pacts ?? []) {
@@ -35,7 +37,10 @@ export default async function ActivityPage() {
     if (view.cleared) cleared.add(p.id);
     for (const a of view.activities) {
       recent.push({ ...a, pact: p.title });
-      if (a.counted && a.verdict === "accepted") counted.set(a.id, Math.max(counted.get(a.id) ?? 0, a.acceptedMeters));
+      if (a.counted && a.verdict === "accepted") {
+        counted.set(a.id, Math.max(counted.get(a.id) ?? 0, a.acceptedMeters));
+        if (a.startDate) countedDates.set(a.id, a.startDate);
+      }
     }
   }
   recent.sort((a, b) => b.startDate.localeCompare(a.startDate));
@@ -46,6 +51,9 @@ export default async function ActivityPage() {
   const earned = (payouts ?? [])
     .filter((p) => p.kind === "payout" && p.status === "confirmed")
     .reduce((sum, p) => sum + Math.max(0, Number(p.lamports) - (stakeOf.get(p.pact_id) ?? 0)), 0);
+  const runDates = [...countedDates.values()];
+  const weeks = weeklyRuns(runDates);
+  const streak = weeklyStreak(runDates);
   const totalMeters = [...counted.values()].reduce((a, b) => a + b, 0);
 
   return (
@@ -75,6 +83,36 @@ export default async function ActivityPage() {
           </Card>
         </div>
 
+        <Card className="flex flex-col gap-4 p-5">
+          <div className="flex items-center gap-2.5">
+            <p className="text-lg font-semibold">Weekly streak</p>
+            <p className="font-extrabold text-oath tabular-nums">
+              {streak} {streak === 1 ? "week" : "weeks"}
+            </p>
+          </div>
+          <ol className="flex justify-between" aria-label="Counted runs in each of the last five weeks">
+            {weeks.map((w) => (
+              <li key={w.start} className="flex flex-col items-center gap-1.5">
+                <span
+                  className={`flex size-[38px] items-center justify-center rounded-xl text-xs font-bold ${
+                    w.runs > 0 ? "bg-oath text-oath-ink" : w.current ? "border-2 border-ink" : "border border-[#383b38]"
+                  }`}
+                >
+                  {w.runs > 0 ? <Check className="size-[18px]" strokeWidth={3} aria-hidden="true" /> : null}
+                </span>
+                <span className={`text-xs ${w.current ? "text-ink" : "text-muted"}`}>{shortDate(new Date(w.start + 12 * 3_600_000).toISOString())}</span>
+                <span className="sr-only">
+                  {w.runs} counted {w.runs === 1 ? "run" : "runs"}
+                  {w.current ? " this week" : ""}
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className="text-sm text-muted">
+            {weeks[weeks.length - 1].runs} counted {weeks[weeks.length - 1].runs === 1 ? "run" : "runs"} this week. A week counts when it has at least one counted run.
+          </p>
+        </Card>
+
         <h2 className="pt-2 text-xl font-bold">Recent runs</h2>
         {recent.length === 0 ? (
           <EmptyState
@@ -92,7 +130,7 @@ export default async function ActivityPage() {
               const ok = a.counted && a.verdict === "accepted";
               return (
                 <li key={`${a.id}-${i}`} className="flex items-start gap-3.5 rounded-[18px] bg-card p-3.5">
-                  <Scene kind={sceneFor(a.id)} className="size-16 shrink-0 rounded-2xl" />
+                  <Scene kind={sceneFor(a.id, a.pact)} className="size-16 shrink-0 rounded-2xl" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
                       <p className="font-semibold">

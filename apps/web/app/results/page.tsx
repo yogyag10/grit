@@ -4,7 +4,7 @@ import { GritLogo } from "@/components/brand/GritLogo";
 import { AppShell } from "@/components/ui/AppShell";
 import { Badge, Card, EmptyState } from "@/components/ui/primitives";
 import { km, solShort, when } from "@/lib/format";
-import { DEMO_PACT_ID, isRetiredSeedPact } from "@/lib/demo-pact";
+import { DEMO_PACT_ID, DEMO_PACT_TITLE, isRetiredSeedPact } from "@/lib/demo-pact";
 import { outcomeSentence } from "@/lib/receipt";
 import type { StoredPlan } from "@/lib/settlement";
 import { createSupabaseAdmin } from "@/lib/supabase/server";
@@ -57,7 +57,7 @@ export default async function ResultsPage() {
                   >
                     <Card className="flex flex-col gap-2 p-5 transition hover:bg-line motion-reduce:transition-none">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-xl font-bold">{s.pact_id === DEMO_PACT_ID ? "Demo" : p.title}</p>
+                        <p className="text-xl font-bold">{s.pact_id === DEMO_PACT_ID ? DEMO_PACT_TITLE : p.title}</p>
                         {p.is_demo && <Badge tone="demo">Demo pact</Badge>}
                       </div>
                       <p className="text-sm text-muted">

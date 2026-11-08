@@ -6,7 +6,7 @@ import { Scene } from "@/components/ui/art";
 import { ButtonLink } from "@/components/ui/Button";
 import { Badge, EmptyState } from "@/components/ui/primitives";
 import { km, solShort, when } from "@/lib/format";
-import { DEMO_PACT_ID, isRetiredSeedPact } from "@/lib/demo-pact";
+import { DEMO_PACT_ID, DEMO_PACT_TITLE, isRetiredSeedPact } from "@/lib/demo-pact";
 import { pactStatus, sceneFor } from "@/lib/spots";
 import { createSupabaseServer, getUser } from "@/lib/supabase/server";
 
@@ -28,7 +28,7 @@ export default async function MyPactsPage() {
   ]);
   const deposited = new Set((deposits ?? []).map((d) => d.pact_id));
   const entries = (rows ?? []).flatMap(r => r.pacts && !isRetiredSeedPact(r.pacts.id)
-    ? [{ pact: r.pacts.id === DEMO_PACT_ID ? { ...r.pacts, title: "Demo" } : r.pacts, mode: r.mode }] : []);
+    ? [{ pact: r.pacts.id === DEMO_PACT_ID ? { ...r.pacts, title: DEMO_PACT_TITLE } : r.pacts, mode: r.mode }] : []);
   const now = new Date();
 
   return (
@@ -55,7 +55,7 @@ export default async function MyPactsPage() {
                 href={`/pacts/${p.id}`}
                 className="flex items-center gap-3.5 rounded-[18px] bg-card p-3.5 transition hover:bg-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oath motion-reduce:transition-none"
               >
-                <Scene kind={sceneFor(p.id)} className="size-16 shrink-0 rounded-2xl" />
+                <Scene kind={sceneFor(p.id, p.title)} className="size-16 shrink-0 rounded-2xl" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-lg font-semibold">{p.title}</p>
                   <p className="text-sm text-muted">

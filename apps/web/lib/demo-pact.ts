@@ -1,4 +1,5 @@
 export const DEMO_PACT_ID = "10000000-0000-4000-8000-0000000000d0";
+export const DEMO_PACT_TITLE = "Wreck Beach run";
 
 /** Retired fixed seeds. Existing records remain accessible by their direct receipt links. */
 const RETIRED_SEED_IDS = new Set([
@@ -15,7 +16,7 @@ export function demoPactSeed(now = Date.now(), endsAt?: string) {
   if (!Number.isFinite(end) || end <= now) throw new Error("DEMO_ENDS must be a future ISO date.");
   return {
     id: DEMO_PACT_ID,
-    title: "Demo",
+    title: DEMO_PACT_TITLE,
     visibility: "public",
     is_demo: true,
     goal_meters: 3000,

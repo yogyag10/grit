@@ -20,7 +20,7 @@ export function GroupRow({
 }) {
   return (
     <li className="flex items-center gap-3.5 rounded-[18px] bg-card p-3.5">
-      <Scene kind={sceneFor(id)} className="size-16 shrink-0 rounded-2xl" />
+      <Scene kind={sceneFor(id, name)} className="size-16 shrink-0 rounded-2xl" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-lg font-semibold">{name}</p>
         {description && <p className="line-clamp-2 text-sm text-muted">{description}</p>}
