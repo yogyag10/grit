@@ -38,6 +38,26 @@ pnpm make-treasury
 
 Prints the public address and writes the secret to `scripts/.treasury-secret.json` (gitignored). Fund the address at https://faucet.solana.com, and put the values in `NEXT_PUBLIC_TREASURY_ADDRESS` and `TREASURY_SECRET_KEY`.
 
+## Live Solana Devnet demo (no browser wallet required)
+
+Use `NEXT_PUBLIC_SOLANA_RPC_URL=https://api.devnet.solana.com` in `apps/web/.env.local`.
+After configuring and funding the treasury above, run:
+
+```sh
+pnpm demo:solana
+```
+
+The script checks that the RPC is on Devnet, funds a dedicated test wallet, sends a real
+0.001 test SOL deposit, verifies it with the app's deposit verifier, and refunds it using the
+settlement math and live transfer adapter. The test wallet's private key is saved in the
+gitignored `scripts/.devnet-demo-participant.json`.
+
+Transaction signatures, confirmation status, and Explorer links are saved under
+`artifacts/solana-devnet/`. Open the deposit and refund links to screenshot the Devnet network,
+confirmed status, and transferred amounts. This is a live Solana integration test with test
+wallets; it does not exercise Supabase, Strava, n8n, or prove the complete application flow.
+If a run fails after sending a transfer, check its saved signatures before running again.
+
 ## Status
 
 Phase 0 skeleton. See `CLAUDE.md` for the build order.

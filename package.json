@@ -7,6 +7,7 @@
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "make-treasury": "tsx scripts/make-treasury.ts",
+    "demo:solana": "tsx scripts/demo-solana.ts",
     "test:rls": "bash scripts/test-rls.sh",
     "seed": "pnpm --filter @oathmile/web seed"
   },

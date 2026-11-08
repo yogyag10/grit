@@ -1,0 +1,44 @@
+{
+  "runId": "2026-11-08T04-41-59.768Z",
+  "cluster": "devnet",
+  "genesisHash": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+  "scope": "Live deposit and refund smoke test with one test wallet; no fitness evidence or backend workflow.",
+  "treasury": "8G1KHzme74KugmvrQaXvaUrTeEbYahu4fJbD4Q97FCvF",
+  "participant": "6N1dUwojVkEAbkzAYzxVum1kstKVo541zi33Xjt12LDC",
+  "stakeLamports": 1000000,
+  "depositVerified": true,
+  "outcome": "refund_none_succeeded",
+  "status": "complete",
+  "transfers": [
+    {
+      "label": "Fund test wallet",
+      "from": "8G1KHzme74KugmvrQaXvaUrTeEbYahu4fJbD4Q97FCvF",
+      "to": "6N1dUwojVkEAbkzAYzxVum1kstKVo541zi33Xjt12LDC",
+      "lamports": 650240,
+      "signature": "3ohPoEfQo9sRyZnrQszKRx5kHCRAbTLrNu4GHF1ahKkSB3njScJMdJZ3zp1nfsPdC3DwEcU78JfW5yL4WXppdbrv",
+      "lastValidBlockHeight": 507050830,
+      "explorer": "https://explorer.solana.com/tx/3ohPoEfQo9sRyZnrQszKRx5kHCRAbTLrNu4GHF1ahKkSB3njScJMdJZ3zp1nfsPdC3DwEcU78JfW5yL4WXppdbrv?cluster=devnet",
+      "status": "confirmed"
+    },
+    {
+      "label": "Commitment deposit",
+      "from": "6N1dUwojVkEAbkzAYzxVum1kstKVo541zi33Xjt12LDC",
+      "to": "8G1KHzme74KugmvrQaXvaUrTeEbYahu4fJbD4Q97FCvF",
+      "lamports": 1000000,
+      "signature": "3j7C1sVw9UmL3dxVL3zFdVn9seECLsPHds1JKUzTzfJ4kMV3qCWZqwAAwq28oFMT3X84tKrrd9tJaBbFsKWU5Ggn",
+      "lastValidBlockHeight": 507050834,
+      "explorer": "https://explorer.solana.com/tx/3j7C1sVw9UmL3dxVL3zFdVn9seECLsPHds1JKUzTzfJ4kMV3qCWZqwAAwq28oFMT3X84tKrrd9tJaBbFsKWU5Ggn?cluster=devnet",
+      "status": "confirmed"
+    },
+    {
+      "label": "Settlement refund",
+      "from": "8G1KHzme74KugmvrQaXvaUrTeEbYahu4fJbD4Q97FCvF",
+      "to": "6N1dUwojVkEAbkzAYzxVum1kstKVo541zi33Xjt12LDC",
+      "lamports": 1000000,
+      "signature": "2vKzPLDcLjxok7hY9pnuJYeTj6mTFLkuuTnoVvmETnm8iFP7jAsqA9jDMngucsHSxAJwQXtgjjupZ6E43zAART1n",
+      "lastValidBlockHeight": 507050838,
+      "explorer": "https://explorer.solana.com/tx/2vKzPLDcLjxok7hY9pnuJYeTj6mTFLkuuTnoVvmETnm8iFP7jAsqA9jDMngucsHSxAJwQXtgjjupZ6E43zAART1n?cluster=devnet",
+      "status": "confirmed"
+    }
+  ]
+}
