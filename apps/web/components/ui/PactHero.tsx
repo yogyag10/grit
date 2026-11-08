@@ -47,7 +47,7 @@ export function PactHero({
           <h1 className="text-[32px] font-extrabold leading-[1.05] tracking-tight [text-shadow:0_1px_12px_rgba(0,0,0,0.35)]">{title}</h1>
         </div>
         <RouteMapButton spot={scene} className="shrink-0">
-          <MapInset size={96} />
+          <MapInset size={96} spot={scene} />
         </RouteMapButton>
       </div>
     </div>

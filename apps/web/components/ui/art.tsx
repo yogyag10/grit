@@ -1,4 +1,21 @@
+import { ROUTES } from "@/lib/routes";
 import { SPOTS, type SceneKind } from "@/lib/spots";
+
+/** SVG path data for the route, scaled to fit a size x size box with padding, keeping its real proportions. */
+function routePath(segments: [number, number][][], size: number, pad: number): string {
+  const pts = segments.flat();
+  const lat0 = pts.reduce((a, p) => a + p[0], 0) / pts.length;
+  const kx = Math.cos((lat0 * Math.PI) / 180);
+  const xs = pts.map((p) => p[1] * kx);
+  const ys = pts.map((p) => -p[0]);
+  const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const scale = (size - 2 * pad) / Math.max(maxX - minX, maxY - minY);
+  const ox = (size - (maxX - minX) * scale) / 2;
+  const oy = (size - (maxY - minY) * scale) / 2;
+  return segments
+    .map((seg) => seg.map((p, i) => `${i ? "L" : "M"}${((p[1] * kx - minX) * scale + ox).toFixed(1)} ${((-p[0] - minY) * scale + oy).toFixed(1)}`).join(""))
+    .join("");
+}
 
 /** A photo of a UBC-area run spot. Credits are in public/spots/CREDITS.md. */
 export function Scene({ kind, className = "" }: { kind: SceneKind; className?: string }) {
@@ -9,7 +26,19 @@ export function Scene({ kind, className = "" }: { kind: SceneKind; className?: s
   );
 }
 
-export function MapInset({ size = 80, className = "" }: { size?: number; className?: string }) {
+/** Small map thumbnail. With a spot, it draws that spot's recommended trail, the same one the big map shows. */
+export function MapInset({ size = 80, className = "", spot }: { size?: number; className?: string; spot?: SceneKind }) {
+  if (spot) {
+    const d = routePath(ROUTES[spot].segments, size, 12);
+    return (
+      <div className={`overflow-hidden rounded-2xl border-[3px] border-white bg-[#eeefe9] ${className}`} style={{ width: size, height: size }}>
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={`Trail map: ${ROUTES[spot].trail}`}>
+          <path d={d} fill="none" stroke="#ffffff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={d} fill="none" stroke="#2f8f2a" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+    );
+  }
   return (
     <div
       className={`overflow-hidden rounded-2xl border-[3px] border-white bg-[#E6E9E0] ${className}`}

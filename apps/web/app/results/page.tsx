@@ -3,7 +3,7 @@ import Link from "next/link";
 import { GritLogo } from "@/components/brand/GritLogo";
 import { AppShell } from "@/components/ui/AppShell";
 import { Badge, Card, EmptyState } from "@/components/ui/primitives";
-import { km, solShort, when } from "@/lib/format";
+import { km, solCad, when } from "@/lib/format";
 import { DEMO_PACT_ID, DEMO_PACT_TITLE, isRetiredSeedPact } from "@/lib/demo-pact";
 import { outcomeSentence } from "@/lib/receipt";
 import type { StoredPlan } from "@/lib/settlement";
@@ -61,14 +61,14 @@ export default async function ResultsPage() {
                         {p.is_demo && <Badge tone="demo">Demo pact</Badge>}
                       </div>
                       <p className="text-sm text-muted">
-                        {km(p.goal_meters, 0)} · {solShort(Number(p.stake_lamports))} deposit · ended {when(p.ends_at)}
+                        {km(p.goal_meters, 0)} · {solCad(Number(p.stake_lamports))} deposit · ended {when(p.ends_at)}
                       </p>
                       <p>
                         {outcomeSentence({ outcome: plan.outcome, funded: plan.fundedIds.length, cleared: plan.qualifierIds.length })}
                       </p>
                       <p className="text-sm text-muted">
-                        {solShort(paid(s.pact_id, ["payout"]))} paid out ·{" "}
-                        {solShort(paid(s.pact_id, ["refund", "return_unfunded", "leave_refund"]))} refunded · 0 SOL fee
+                        {solCad(paid(s.pact_id, ["payout"]))} paid out ·{" "}
+                        {solCad(paid(s.pact_id, ["refund", "return_unfunded", "leave_refund"]))} refunded · 0 SOL fee
                         {s.status !== "done" && " · payouts in progress"}
                       </p>
                     </Card>

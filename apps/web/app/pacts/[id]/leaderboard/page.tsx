@@ -1,3 +1,4 @@
+import { SolValue } from "@/components/ui/Money";
 import { Check } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { AppShell } from "@/components/ui/AppShell";
@@ -5,7 +6,7 @@ import { DemoPledges } from "@/components/DemoPledges";
 import { ButtonLink } from "@/components/ui/Button";
 import { PactHero } from "@/components/ui/PactHero";
 import { Badge, Card, ProgressBar, StatTile } from "@/components/ui/primitives";
-import { km, shortDate, solShort } from "@/lib/format";
+import { km, shortDate, solCad } from "@/lib/format";
 import { canView, loadMembership, loadPact } from "@/lib/pacts";
 import type { StoredPlan } from "@/lib/settlement";
 import { initials, pactStatus, sceneFor } from "@/lib/spots";
@@ -57,7 +58,7 @@ export default async function LeaderboardPage({
         <DemoPledges pact={pact} actualMembers={stats.members} expanded />
         <div className="grid grid-cols-3 gap-3">
           <StatTile label="Cleared" value={`${stats.cleared} of ${stats.funded}`} />
-          <StatTile label="Pool" value={solShort(stats.poolLamports)} />
+          <StatTile label="Pool" value={<SolValue lamports={stats.poolLamports} />} />
           <StatTile label="Fee" value="0%" accent />
         </div>
 
@@ -115,7 +116,7 @@ export default async function LeaderboardPage({
             <span>Everyone who cleared got</span>
             <span className="flex items-center gap-1.5 text-2xl font-extrabold tabular-nums">
               <Check className="size-5" aria-hidden="true" />
-              {solShort(Math.floor(plan.poolLamports / plan.qualifierIds.length))}
+              {solCad(Math.floor(plan.poolLamports / plan.qualifierIds.length))}
             </span>
           </Card>
         )}

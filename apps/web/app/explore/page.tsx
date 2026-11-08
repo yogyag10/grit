@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { AppShell, PageHeader } from "@/components/ui/AppShell";
-import { km, solShort, when } from "@/lib/format";
+import { km, solCad, solShort, when } from "@/lib/format";
 import { demoPledges } from "@/lib/demo-pledges";
 import { DEMO_PACT_ID, DEMO_PACT_TITLE, isRetiredSeedPact } from "@/lib/demo-pact";
 import { pactLengthDays, pactStatus, sceneFor } from "@/lib/spots";
@@ -48,7 +48,7 @@ export default async function ExplorePage() {
     const joinOpen = now.getTime() < Date.parse(p.funding_cutoff);
     const joined = mine.has(p.id);
     const lines = [
-      `${km(p.goal_meters, 0)} in ${pactLengthDays(p)} days · ${solShort(Number(p.stake_lamports))} · ${
+      `${km(p.goal_meters, 0)} in ${pactLengthDays(p)} days · ${solCad(Number(p.stake_lamports))} · ${
         sampleCount ? `${count + sampleCount} pledged` : status === "upcoming" ? `${count} joined so far` : `${count} ${count === 1 ? "runner" : "runners"}`
       }`,
     ];

@@ -1,3 +1,5 @@
+import { SOL_CAD_RATE } from "./rate";
+
 const LAMPORTS_PER_SOL = 1_000_000_000;
 
 export function km(meters: number, digits = 1): string {
@@ -33,3 +35,13 @@ const weekdayFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Vancouv
 
 export const shortDate = (iso: string): string => dayFmt.format(new Date(iso));
 export const weekday = (iso: string): string => weekdayFmt.format(new Date(iso));
+
+/** Approximate Canadian dollars for an amount of lamports: C$12.57. */
+export function cadOf(lamports: number): string {
+  return `C$${((lamports / LAMPORTS_PER_SOL) * SOL_CAD_RATE).toFixed(2)}`;
+}
+
+/** SOL with its CAD value: 0.10 SOL (≈ C$12.57). */
+export function solCad(lamports: number): string {
+  return `${solShort(lamports)} (≈ ${cadOf(lamports)})`;
+}

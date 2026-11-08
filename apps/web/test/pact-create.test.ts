@@ -22,9 +22,19 @@ describe("parseNewPact", () => {
     expect(Date.parse(r.pact.sync_cutoff) - Date.parse(r.pact.ends_at)).toBe(HOUR);
   });
   it("rejects values outside the presets", () => {
-    expect(parseNewPact({ ...base, goalKm: 7 }, NOW).ok).toBe(false);
+    expect(parseNewPact({ ...base, goalKm: 0.5 }, NOW).ok).toBe(false);
+    expect(parseNewPact({ ...base, goalKm: 101 }, NOW).ok).toBe(false);
+    expect(parseNewPact({ ...base, goalKm: 7.25 }, NOW).ok).toBe(false);
     expect(parseNewPact({ ...base, stakeSol: 5 }, NOW).ok).toBe(false);
+    expect(parseNewPact({ ...base, stakeSol: 0.0005 }, NOW).ok).toBe(false);
+    expect(parseNewPact({ ...base, goalKm: "7" }, NOW).ok).toBe(false);
     expect(parseNewPact({ ...base, visibility: "secret" }, NOW).ok).toBe(false);
+  });
+  it("accepts custom distances and deposits inside the limits", () => {
+    const r = parseNewPact({ ...base, goalKm: 7.5, stakeSol: 0.015 }, NOW);
+    expect(r.ok && r.pact.goal_meters).toBe(7500);
+    expect(r.ok && r.pact.stake_lamports).toBe(15_000_000);
+    expect(parseNewPact({ ...base, goalKm: 100, stakeSol: 0.25 }, NOW).ok).toBe(true);
   });
   it("rejects bad titles", () => {
     expect(parseNewPact({ ...base, title: "ab" }, NOW).ok).toBe(false);

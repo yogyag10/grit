@@ -1,3 +1,4 @@
+import { SolValue } from "@/components/ui/Money";
 import { Check, Lock } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -8,7 +9,7 @@ import { Scene } from "@/components/ui/art";
 import { ButtonLink } from "@/components/ui/Button";
 import { PactHero } from "@/components/ui/PactHero";
 import { Badge, Card, ExplorerLink, Note, ProgressBar, StatTile } from "@/components/ui/primitives";
-import { km, shortDate, solShort, when } from "@/lib/format";
+import { cadOf, km, shortDate, solCad, when } from "@/lib/format";
 import { canView, loadMembership, loadMyProgress, loadPact } from "@/lib/pacts";
 import { outcomeSentence } from "@/lib/receipt";
 import type { StoredPlan } from "@/lib/settlement";
@@ -94,7 +95,7 @@ export default async function PactPage({
       />
       <div className="flex flex-col gap-4 px-4 pt-3">
         <p className="text-muted">
-          {shortDate(pact.starts_at)} – {shortDate(pact.ends_at)} · {solShort(stake)} deposit ·{" "}
+          {shortDate(pact.starts_at)} – {shortDate(pact.ends_at)} · {solCad(stake)} deposit ·{" "}
           {pact.visibility === "invite" ? "Invite only" : "Public"}
         </p>
         {pact.cancelled_at && <Note tone="warn">This pact was cancelled.</Note>}
@@ -149,7 +150,7 @@ export default async function PactPage({
 
         <div className="grid grid-cols-3 gap-3">
           <StatTile label="Cleared" value={`${stats.cleared} of ${stats.funded}`} />
-          <StatTile label="Pool" value={solShort(stats.poolLamports)} />
+          <StatTile label="Pool" value={<SolValue lamports={stats.poolLamports} />} />
           <StatTile label="Fee" value="0%" accent />
         </div>
 
@@ -159,13 +160,13 @@ export default async function PactPage({
           </h2>
           <div className="flex justify-between text-muted">
             <span>
-              Pool ({stats.funded} × {solShort(stake)})
+              Pool ({stats.funded} × {solCad(stake)})
             </span>
-            <span className="font-semibold text-ink tabular-nums">{solShort(stats.poolLamports)}</span>
+            <span className="font-semibold text-ink tabular-nums">{solCad(stats.poolLamports)}</span>
           </div>
           <div className="flex justify-between text-muted">
             <span>Grit fee</span>
-            <span className="font-semibold text-ink tabular-nums">0.00 SOL</span>
+            <span className="font-semibold text-ink tabular-nums">{solCad(0)}</span>
           </div>
           <hr className="border-line" />
           {stats.funded > 0 ? (
@@ -173,12 +174,12 @@ export default async function PactPage({
               <span>
                 If {shareExample} {shareExample === 1 ? "person clears" : "people clear"}, each gets
               </span>
-              <span className="text-oath tabular-nums">{solShort(Math.floor(stats.poolLamports / shareExample))}</span>
+              <span className="text-oath tabular-nums">{solCad(Math.floor(stats.poolLamports / shareExample))}</span>
             </div>
           ) : (
             <p className="font-semibold">The pool grows as members deposit.</p>
           )}
-          <p className="text-sm text-muted">Nobody clears? Everyone gets their {solShort(stake)} back.</p>
+          <p className="text-sm text-muted">Nobody clears? Everyone gets their {solCad(stake)} back.</p>
         </Card>
 
         {!membership ? (
@@ -202,7 +203,7 @@ export default async function PactPage({
                       <>Received after the pact started, so it isn&apos;t in the pool. It goes back to your wallet when the pact settles.</>
                     ) : (
                       <>
-                        <span className="font-semibold text-ink">{solShort(stake)}</span> confirmed on {when(deposit.confirmed_at)}.
+                        <span className="font-semibold text-ink">{solCad(stake)}</span> confirmed on {when(deposit.confirmed_at)}.
                       </>
                     )}
                   </p>
@@ -219,7 +220,7 @@ export default async function PactPage({
               ) : (
                 <>
                   <p className="text-muted">
-                    Deposit {solShort(stake)} before {when(pact.funding_cutoff)}. It&apos;s held in a{" "}
+                    Deposit {solCad(stake)} before {when(pact.funding_cutoff)}. It&apos;s held in a{" "}
                     <a href={explorerAddress(treasury)} target="_blank" rel="noreferrer" className="text-oath underline underline-offset-2">
                       Grit devnet wallet
                     </a>{" "}
@@ -231,7 +232,7 @@ export default async function PactPage({
                     lamports={stake}
                     treasury={treasury}
                     linkedWallet={profile.wallet_address}
-                    label={`Deposit ${solShort(stake)}`}
+                    label={`Deposit ${solCad(stake)}`}
                   />
                 </>
               )}
@@ -317,7 +318,7 @@ export default async function PactPage({
               (Vancouver time).
             </li>
             <li>
-              Commitment deposit: <strong className="text-ink">{solShort(stake)}</strong> (devnet, no real funds).
+              Commitment deposit: <strong className="text-ink">{solCad(stake)}</strong> (devnet, no real funds).
             </li>
             <li>Only GPS-recorded outdoor runs from Strava count, and only runs you start after joining.</li>
             <li>Reach the goal and you get your full deposit back plus an equal share of deposits from members who don&apos;t.</li>
@@ -364,9 +365,10 @@ function ResultCard(props: {
           </p>
           <hr className="border-oath-ink/20" />
           <p className="font-semibold">{props.payoutConfirmed ? "Sent to your wallet" : "Sending to your wallet"}</p>
-          <p className="text-[44px] font-extrabold leading-none tabular-nums">+{solShort(props.payoutLamports)}</p>
+          <p className="text-[44px] font-extrabold leading-none tabular-nums">+{solCad(props.payoutLamports)}</p>
+          <p className="font-semibold">≈ {cadOf(props.payoutLamports)}</p>
           <p>
-            {solShort(props.stakeLamports)} deposit back + {solShort(Math.max(0, props.payoutLamports - props.stakeLamports))} from the pool
+            {solCad(props.stakeLamports)} deposit back + {solCad(Math.max(0, props.payoutLamports - props.stakeLamports))} from the pool
           </p>
         </Card>
       ) : (
@@ -376,7 +378,7 @@ function ResultCard(props: {
           </h2>
           <p className="text-muted">
             {refunded && props.payoutLamports !== null
-              ? `${solShort(props.payoutLamports)} ${props.payoutConfirmed ? "was sent" : "is on its way"} to your wallet.`
+              ? `${solCad(props.payoutLamports)} ${props.payoutConfirmed ? "was sent" : "is on its way"} to your wallet.`
               : props.funded && props.split
                 ? `You covered ${props.km} of ${props.goal}. Your deposit went to the members who cleared the goal. Your next pact is a fresh start.`
                 : props.summary}

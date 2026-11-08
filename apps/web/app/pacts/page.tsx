@@ -5,7 +5,7 @@ import { AppShell, PageHeader } from "@/components/ui/AppShell";
 import { Scene } from "@/components/ui/art";
 import { ButtonLink } from "@/components/ui/Button";
 import { Badge, EmptyState } from "@/components/ui/primitives";
-import { km, solShort, when } from "@/lib/format";
+import { km, solCad, when } from "@/lib/format";
 import { DEMO_PACT_ID, DEMO_PACT_TITLE, isRetiredSeedPact } from "@/lib/demo-pact";
 import { pactStatus, sceneFor } from "@/lib/spots";
 import { createSupabaseServer, getUser } from "@/lib/supabase/server";
@@ -59,7 +59,7 @@ export default async function MyPactsPage() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-lg font-semibold">{p.title}</p>
                   <p className="text-sm text-muted">
-                    {km(p.goal_meters, 0)} · {solShort(Number(p.stake_lamports))} ·{" "}
+                    {km(p.goal_meters, 0)} · {solCad(Number(p.stake_lamports))} ·{" "}
                     {status === "live" ? `ends ${when(p.ends_at)}` : status === "upcoming" ? `starts ${when(p.starts_at)}` : status === "ended" ? "ended" : "cancelled"}
                   </p>
                   <div className="mt-1.5 flex flex-wrap gap-2">

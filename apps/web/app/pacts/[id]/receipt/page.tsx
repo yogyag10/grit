@@ -1,9 +1,10 @@
+import { SolValue } from "@/components/ui/Money";
 import { Check, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/ui/AppShell";
 import { Badge, Card, ExplorerLink, StatTile } from "@/components/ui/primitives";
-import { km, solShort, when } from "@/lib/format";
+import { cadOf, km, solCad, solShort, when } from "@/lib/format";
 import { loadMembership, loadPact } from "@/lib/pacts";
 import { buildReceipt, canViewReceipt, outcomeSentence, type ReceiptLine } from "@/lib/receipt";
 import { explorerAddress, treasuryAddress } from "@/lib/solana";
@@ -38,7 +39,7 @@ function Row({ line }: { line: ReceiptLine }) {
           </span>
         )}
       </td>
-      <td className={`py-3.5 text-right tabular-nums ${out ? "font-semibold" : ""}`}>{solShort(line.lamports).replace(" SOL", "")}</td>
+      <td className={`py-3.5 text-right tabular-nums ${out ? "font-semibold" : ""}`}>{solShort(line.lamports).replace(" SOL", "")}<span className="block text-xs font-normal text-muted">≈ {cadOf(line.lamports)}</span></td>
     </tr>
   );
 }
@@ -85,15 +86,15 @@ export default async function ReceiptPage({
             {r.title} · every SOL in and out, on-chain
           </p>
           <p className="mt-1 text-sm text-muted">
-            {km(r.goalMeters, 0)} goal · {solShort(r.stakeLamports)} deposit · ended {when(r.endsAt)}
+            {km(r.goalMeters, 0)} goal · {solCad(r.stakeLamports)} deposit · ended {when(r.endsAt)}
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <StatTile label="Deposited" value={solShort(t.depositedLamports)} />
-          <StatTile label="Paid out" value={solShort(t.paidOutLamports)} />
-          <StatTile label="Fee" value="0.00 SOL" accent />
-          <StatTile label="Refunded" value={solShort(t.refundedLamports)} />
+          <StatTile label="Deposited" value={<SolValue lamports={t.depositedLamports} />} />
+          <StatTile label="Paid out" value={<SolValue lamports={t.paidOutLamports} />} />
+          <StatTile label="Fee" value={<SolValue lamports={0} />} accent />
+          <StatTile label="Refunded" value={<SolValue lamports={t.refundedLamports} />} />
         </div>
 
         {r.balanced ? (
@@ -103,8 +104,8 @@ export default async function ReceiptPage({
         ) : (
           <Card className="text-muted">
             {r.settled
-              ? `Payouts in progress: ${solShort(t.outstandingLamports)} still to send.`
-              : `${solShort(t.depositedLamports)} held in the Grit devnet wallet until the pact settles.`}
+              ? `Payouts in progress: ${solCad(t.outstandingLamports)} still to send.`
+              : `${solCad(t.depositedLamports)} held in the Grit devnet wallet until the pact settles.`}
           </Card>
         )}
         <p className="text-muted">{outcomeSentence(r)}</p>

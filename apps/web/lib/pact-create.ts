@@ -1,6 +1,9 @@
 export const GOAL_PRESETS_KM = [5, 10, 20, 42] as const;
 export const STAKE_PRESETS_SOL = [0.05, 0.1, 0.25] as const;
 export const MAX_ACTIVE_HOSTED = 3;
+/** Custom values. The deposit cap is what the demo wallet funding can cover. */
+export const GOAL_KM_RANGE = { min: 1, max: 100 } as const;
+export const STAKE_SOL_RANGE = { min: 0.01, max: 0.25 } as const;
 
 const TITLE = /^[\p{L}\p{N} .'&-]{3,50}$/u;
 const MIN_LEAD_MS = 5 * 60_000;
@@ -22,13 +25,24 @@ export interface NewPact {
 
 export type ParsedPact = { ok: true; pact: NewPact } | { ok: false; error: string };
 
+/** True when `value` has no more decimals than 1/`perUnit` allows (0.1 km -> perUnit 10). */
+function isMultiple(value: number, perUnit: number): boolean {
+  return Math.abs(value * perUnit - Math.round(value * perUnit)) < 1e-9;
+}
+
 /** Validates a create-pact request against the presets and date rules. Joining closes when the pact starts. */
 export function parseNewPact(body: unknown, now = Date.now()): ParsedPact {
   const b = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
   const title = typeof b.title === "string" ? b.title.trim().replace(/\s+/g, " ") : "";
   if (!TITLE.test(title)) return { ok: false, error: "Name the pact with 3 to 50 letters, numbers or spaces." };
-  if (!GOAL_PRESETS_KM.some((km) => km === b.goalKm)) return { ok: false, error: "Pick one of the goal distances." };
-  if (!STAKE_PRESETS_SOL.some((sol) => sol === b.stakeSol)) return { ok: false, error: "Pick one of the deposit amounts." };
+  const goalKm = b.goalKm;
+  if (typeof goalKm !== "number" || !Number.isFinite(goalKm) || goalKm < GOAL_KM_RANGE.min || goalKm > GOAL_KM_RANGE.max || !isMultiple(goalKm, 10)) {
+    return { ok: false, error: `Choose a goal between ${GOAL_KM_RANGE.min} and ${GOAL_KM_RANGE.max} km, in steps of 0.1.` };
+  }
+  const stakeSol = b.stakeSol;
+  if (typeof stakeSol !== "number" || !Number.isFinite(stakeSol) || stakeSol < STAKE_SOL_RANGE.min || stakeSol > STAKE_SOL_RANGE.max || !isMultiple(stakeSol, 1000)) {
+    return { ok: false, error: `Choose a deposit between ${STAKE_SOL_RANGE.min} and ${STAKE_SOL_RANGE.max} SOL, in steps of 0.001.` };
+  }
   if (b.visibility !== "public" && b.visibility !== "invite") return { ok: false, error: "Choose public or invite only." };
 
   const start = typeof b.startsAt === "string" ? Date.parse(b.startsAt) : NaN;
@@ -44,8 +58,8 @@ export function parseNewPact(body: unknown, now = Date.now()): ParsedPact {
     ok: true,
     pact: {
       title,
-      goal_meters: (b.goalKm as number) * 1000,
-      stake_lamports: Math.round((b.stakeSol as number) * 1_000_000_000),
+      goal_meters: Math.round(goalKm * 1000),
+      stake_lamports: Math.round(stakeSol * 1_000_000_000),
       visibility: b.visibility,
       starts_at: iso(start),
       ends_at: iso(end),

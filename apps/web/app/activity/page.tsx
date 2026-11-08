@@ -5,7 +5,7 @@ import { AppShell, PageHeader } from "@/components/ui/AppShell";
 import { Scene } from "@/components/ui/art";
 import { ButtonLink } from "@/components/ui/Button";
 import { Badge, Card, EmptyState } from "@/components/ui/primitives";
-import { km, shortDate, solShort, weekday } from "@/lib/format";
+import { km, shortDate, solCad, weekday } from "@/lib/format";
 import { sceneFor } from "@/lib/spots";
 import { weeklyRuns, weeklyStreak } from "@/lib/streak";
 import { createSupabaseServer, getUser } from "@/lib/supabase/server";
@@ -79,7 +79,7 @@ export default async function ActivityPage() {
             <p className="text-3xl font-extrabold leading-none tabular-nums">
               {kept} of {settledPacts.length}
             </p>
-            <p className="text-sm text-muted">+{solShort(earned)} earned (devnet)</p>
+            <p className="text-sm text-muted">+{solCad(earned)} earned (devnet)</p>
           </Card>
         </div>
 

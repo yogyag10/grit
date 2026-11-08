@@ -39,7 +39,7 @@ export function PhotoCard({
           <ShareButton path={href} title={title} />
         </div>
         <RouteMapButton spot={scene} className="absolute bottom-3 right-3">
-          <MapInset />
+          <MapInset spot={scene} />
         </RouteMapButton>
       </div>
       <Link href={href} className="text-xl font-bold tracking-[-0.01em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oath">
