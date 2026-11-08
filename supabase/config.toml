@@ -428,3 +428,28 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# Hosted project overrides (applied by `supabase config push`). Local dev keeps the values above.
+[remotes.production]
+project_id = "iryuecdzvrjahyoeuhhh"
+
+[remotes.production.auth]
+site_url = "https://movepact.vercel.app"
+additional_redirect_urls = ["https://movepact.vercel.app/auth/callback", "http://localhost:3000/auth/callback"]
+
+[remotes.production.auth.email]
+max_frequency = "1m0s"
+
+[remotes.production.storage.vector]
+enabled = false
+
+# Custom SMTP for hosted (required on the free tier to use our sign-in template with the 6-digit code).
+# Set SMTP_USER / SMTP_PASS in the shell (never commit them), then `supabase config push --yes`.
+[remotes.production.auth.email.smtp]
+enabled = true
+host = "smtp.gmail.com"
+port = 587
+user = "env(SMTP_USER)"
+pass = "env(SMTP_PASS)"
+admin_email = "env(SMTP_USER)"
+sender_name = "MovePact"
