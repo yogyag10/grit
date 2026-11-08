@@ -37,6 +37,35 @@ do $$ begin
   end;
 end $$;
 
+-- Community constraints the app relies on.
+do $$ begin
+  begin
+    insert into public.groups (name, visibility, created_by) values ('Private no code', 'private', '00000000-0000-0000-0000-00000000000a');
+    raise exception 'a private group without an invite code was accepted';
+  exception when check_violation then null;
+  end;
+  insert into public.groups (name, visibility, invite_code, created_by)
+    values ('Test group', 'private', 'ABCD2345', '00000000-0000-0000-0000-00000000000a');
+  begin
+    insert into public.groups (name, visibility, invite_code, created_by)
+      values ('Other group', 'private', 'ABCD2345', '00000000-0000-0000-0000-00000000000a');
+    raise exception 'a duplicate invite code was accepted';
+  exception when unique_violation then null;
+  end;
+  begin
+    insert into public.messages (user_id, body) values ('00000000-0000-0000-0000-00000000000a', repeat('x', 501));
+    raise exception 'a 501 character message was accepted';
+  exception when check_violation then null;
+  end;
+  begin
+    insert into public.messages (user_id, body) values ('00000000-0000-0000-0000-00000000000a', '');
+    raise exception 'an empty message was accepted';
+  exception when check_violation then null;
+  end;
+  insert into public.messages (user_id, body) values ('00000000-0000-0000-0000-00000000000a', 'hello campus');
+  assert (select count(*) from public.messages where group_id is null) = 1, 'a campus message is stored with a null group';
+end $$;
+
 -- Act as user A.
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000a', false);
@@ -65,6 +94,30 @@ do $$ begin
   begin
     perform count(*) from public.settlements;
     raise exception 'A could query settlements';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+
+-- Community data (private invite codes, group chats) is server-only: no direct reads or writes from a browser.
+do $$ begin
+  begin
+    perform count(*) from public.groups;
+    raise exception 'A could query groups';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform count(*) from public.group_members;
+    raise exception 'A could query group_members';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform count(*) from public.messages;
+    raise exception 'A could query messages';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    insert into public.messages (user_id, body) values ('00000000-0000-0000-0000-00000000000a', 'hi');
+    raise exception 'A could post a message directly';
   exception when insufficient_privilege then null;
   end;
 end $$;

@@ -63,6 +63,78 @@ isOneToOne: true
       referencedColumns: ["pact_id","user_id"]
     }
                   ]
+                },"groups": {
+                  Row: {
+                    "created_at": string,"created_by": string,"description": string,"id": string,"invite_code": string | null,"name": string,"visibility": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by": string,"description"?: string,"id"?: string,"invite_code"?: string | null,"name": string,"visibility"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string,"description"?: string,"id"?: string,"invite_code"?: string | null,"name"?: string,"visibility"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "groups_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"group_members": {
+                  Row: {
+                    "group_id": string,"joined_at": string,"role": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "group_id": string,"joined_at"?: string,"role"?: string,"user_id": string
+                  }
+                  Update: {
+                    "group_id"?: string,"joined_at"?: string,"role"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "group_members_group_id_fkey"
+      columns: ["group_id"]
+isOneToOne: false
+      referencedRelation: "groups"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "group_members_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"messages": {
+                  Row: {
+                    "body": string,"created_at": string,"group_id": string | null,"id": number,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body": string,"created_at"?: string,"group_id"?: string | null,"id"?: number,"user_id": string
+                  }
+                  Update: {
+                    "body"?: string,"created_at"?: string,"group_id"?: string | null,"id"?: number,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "messages_group_id_fkey"
+      columns: ["group_id"]
+isOneToOne: false
+      referencedRelation: "groups"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "messages_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"memberships": {
                   Row: {
                     "joined_at": string,"left_at": string | null,"mode": string,"pact_id": string,"show_in_standings": boolean,"user_id": string

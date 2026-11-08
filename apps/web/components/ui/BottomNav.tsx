@@ -1,19 +1,18 @@
 "use client";
 
-import { Flag, Plus, Search, TrendingUp, User } from "lucide-react";
+import { Plus, Search, TrendingUp, User, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const ITEMS = [
   { href: "/explore", label: "Explore", Icon: Search },
-  { href: "/pacts", label: "My pacts", Icon: Flag },
+  { href: "/community", label: "Community", Icon: Users },
   { href: "/pacts/new", label: "Create a pact", Icon: Plus },
   { href: "/activity", label: "Activity", Icon: TrendingUp },
   { href: "/me", label: "Me", Icon: User },
 ] as const;
 
 function isActive(path: string, href: string) {
-  if (href === "/pacts") return path === "/pacts" || (path.startsWith("/pacts/") && path !== "/pacts/new");
   return path === href || path.startsWith(`${href}/`);
 }
 
